@@ -115,7 +115,7 @@ public class Model extends Observable {
         if (side != Side.NORTH) {
             board.setViewingPerspective(side);
         }
-        changed = moveUp();
+        changed = mergeUp();
         board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
@@ -125,29 +125,22 @@ public class Model extends Observable {
         return changed;
     }
 
-    private boolean moveUp() {
+    private boolean mergeUp() {
         int size = board.size();
-        boolean[] moved = new boolean[size];
-        for (int col = 0; col < size; col++) {
-            moved[col] = mergeUpColumn(col, size);
-        }
-        for (boolean c : moved) if(c) return true;
-        return false;
-    }
-
-    private boolean mergeUpColumn (int column, int size) {
         boolean moved = false;
-        for (int row = size - 1; row >= 0; row--) {
-            Tile currTile = board.tile(column, row);
-            Tile nextTile = toBeMoved(column, row);
-            if (nextTile == null) {
-                break;
-            } else if (currTile == null || currTile.value() == nextTile.value()) {
-                moved = true;
-                if (board.move(column, row, nextTile)) {
-                    updateScore(nextTile.value());
-                } else {
-                    row += 1;
+        for (int col = 0; col < size; col++) {
+            for (int row = size - 1; row >= 0; row--) {
+                Tile currTile = board.tile(col, row);
+                Tile nextTile = toBeMoved(col, row);
+                if (nextTile == null) {
+                    break;
+                } else if (currTile == null || currTile.value() == nextTile.value()) {
+                    moved = true;
+                    if (board.move(col, row, nextTile)) {
+                        updateScore(nextTile.value());
+                    } else {
+                        row += 1;
+                    }
                 }
             }
         }
