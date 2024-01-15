@@ -112,9 +112,11 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
-        if (side == Side.NORTH) {
-            changed = moveUp();
+        if (side != Side.NORTH) {
+            board.setViewingPerspective(side);
         }
+        changed = moveUp();
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
@@ -124,7 +126,7 @@ public class Model extends Observable {
     }
 
     private boolean moveUp() {
-        int size = this.board.size();
+        int size = board.size();
         boolean[] moved = new boolean[size];
         for (int col = 0; col < size; col++) {
             moved[col] = mergeUpColumn(col, size);
@@ -135,24 +137,23 @@ public class Model extends Observable {
 
     private boolean mergeUpColumn (int column, int size) {
         boolean moved = false;
-
         for (int row = size - 1; row >= 0; row--) {
             Tile currTile = board.tile(column, row);
             Tile nextTile = toBeMoved(column, row);
             if (currTile != null) {
                 if (nextTile != null && currTile.value() == nextTile.value()) {
                     board.move(column, row, nextTile);
-                    moved = true;
                     updateScore(currTile.value());
+                    moved = true;
                 }
             } else if (nextTile != null) {
                 int nextRow = nextTile.row();
                 Tile followingTile = toBeMoved(column, nextRow);
                 if (followingTile != null && nextTile.value() == followingTile.value()) {
-                    board.move(column, nextRow, followingTile);
-                    board.move(column, row, board.tile(column, nextRow));
-                    moved = true;
+                    board.move(column, row, nextTile);
+                    board.move(column, row, followingTile);
                     updateScore(nextTile.value());
+                    moved = true;
                 } else {
                     board.move(column, row, nextTile);
                     moved = true;
@@ -175,7 +176,7 @@ public class Model extends Observable {
     }
 
     private void updateScore(int value) {
-        score += value * 2;
+        this.score += value * 2;
     }
 
     /** Checks if the game is over and sets the gameOver variable
