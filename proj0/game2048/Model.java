@@ -112,12 +112,70 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        if (side == Side.NORTH) {
+            changed = moveUp();
+        }
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    private boolean moveUp() {
+        int size = this.board.size();
+        boolean[] moved = new boolean[size];
+        for (int col = 0; col < size; col++) {
+            moved[col] = mergeUpColumn(col, size);
+        }
+        for (boolean c : moved) if(c) return true;
+        return false;
+    }
+
+    private boolean mergeUpColumn (int column, int size) {
+        boolean moved = false;
+
+        for (int row = size - 1; row >= 0; row--) {
+            Tile currTile = board.tile(column, row);
+            Tile nextTile = toBeMoved(column, row);
+            if (currTile != null) {
+                if (nextTile != null && currTile.value() == nextTile.value()) {
+                    board.move(column, row, nextTile);
+                    moved = true;
+                    updateScore(currTile.value());
+                }
+            } else if (nextTile != null) {
+                int nextRow = nextTile.row();
+                Tile followingTile = toBeMoved(column, nextRow);
+                if (followingTile != null && nextTile.value() == followingTile.value()) {
+                    board.move(column, nextRow, followingTile);
+                    board.move(column, row, board.tile(column, nextRow));
+                    moved = true;
+                    updateScore(nextTile.value());
+                } else {
+                    board.move(column, row, nextTile);
+                    moved = true;
+                }
+            }
+        }
+        return moved;
+    }
+
+    private Tile toBeMoved(int column, int row) {
+        int nextRow = row - 1;
+        while (nextRow >= 0) {
+            Tile nextTile = board.tile(column, nextRow);
+            if (nextTile != null) {
+                return nextTile;
+            }
+            nextRow -= 1;
+        }
+        return null;
+    }
+
+    private void updateScore(int value) {
+        score += value * 2;
     }
 
     /** Checks if the game is over and sets the gameOver variable
