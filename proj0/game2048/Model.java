@@ -140,23 +140,14 @@ public class Model extends Observable {
         for (int row = size - 1; row >= 0; row--) {
             Tile currTile = board.tile(column, row);
             Tile nextTile = toBeMoved(column, row);
-            if (currTile != null) {
-                if (nextTile != null && currTile.value() == nextTile.value()) {
-                    board.move(column, row, nextTile);
-                    updateScore(currTile.value());
-                    moved = true;
-                }
-            } else if (nextTile != null) {
-                int nextRow = nextTile.row();
-                Tile followingTile = toBeMoved(column, nextRow);
-                if (followingTile != null && nextTile.value() == followingTile.value()) {
-                    board.move(column, row, nextTile);
-                    board.move(column, row, followingTile);
+            if (nextTile == null) {
+                break;
+            } else if (currTile == null || currTile.value() == nextTile.value()) {
+                moved = true;
+                if (board.move(column, row, nextTile)) {
                     updateScore(nextTile.value());
-                    moved = true;
                 } else {
-                    board.move(column, row, nextTile);
-                    moved = true;
+                    row += 1;
                 }
             }
         }
