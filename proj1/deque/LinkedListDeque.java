@@ -25,16 +25,15 @@ public class LinkedListDeque<Type> {
    */
   public LinkedListDeque(Type first) {
     this.sentinel = new Node(null, null, null);
-    Node firstItem = new Node(first, sentinel, sentinel); // circular structure
+    Node firstItem = new Node(first, this.sentinel, this.sentinel);
     this.sentinel.prev = firstItem;
     this.sentinel.next = firstItem;
     this.size = 1;
   }
 
   /**
-   * The constructor for the empty linked list.
-   * sentinel.prev and sentinel.next both point to the sentinel node itself,
-   * which is default to null.
+   * The constructor for the empty linked list,
+   * in which sentinel.prev and sentinel.next both point to the sentinel node itself.
    */
   public LinkedListDeque() {
     this.sentinel = new Node(null, null, null);
@@ -102,7 +101,6 @@ public class LinkedListDeque<Type> {
     Type elem = this.sentinel.next.item;
     this.sentinel.next.next.prev = this.sentinel;
     this.sentinel.next = this.sentinel.next.next;
-    this.size -= 1;
     return elem;
   }
 
