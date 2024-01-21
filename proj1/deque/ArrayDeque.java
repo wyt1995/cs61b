@@ -91,6 +91,9 @@ public class ArrayDeque<Type> {
     if (arraySize > initSize && size < 0.25 * arraySize) {
       resize(arraySize / 2);
     }
+    if (size == 0) {
+      return null;
+    }
     Type firstItem = items[firstIndex];
     items[firstIndex] = null;
     this.size -= 1;
@@ -101,6 +104,9 @@ public class ArrayDeque<Type> {
   public Type removeLast() {
     if (arraySize > initSize && size < 0.25 * arraySize) {
       resize(arraySize / 2);
+    }
+    if (size == 0) {
+      return null;
     }
     int lastIndex = getLastIndex();
     Type lastItem = items[lastIndex];
