@@ -24,8 +24,8 @@ public class ArrayDequeTest {
     alist.addLast(5);
     alist.addLast(6);
     assertEquals(7, alist.size());
-    assertEquals(0, (Object) alist.get(0));
-    assertEquals(3, (Object) alist.get(3));
+    assertEquals((Integer) 0, alist.get(0));
+    assertEquals((Integer) 3, alist.get(3));
 
     alist.removeFirst();
     alist.removeLast();
@@ -50,7 +50,7 @@ public class ArrayDequeTest {
     }
     assertEquals(32, alist.size());
     for (int i = 0; i < 32; i++) {
-      assertEquals(i, (Object) alist.get(i));
+      assertEquals((Integer) i, alist.get(i));
     }
 
     for (int i = 0; i < 30; i++) {
@@ -58,7 +58,7 @@ public class ArrayDequeTest {
     }
     assertEquals(2, alist.size());
     for (int i = 0; i < 2; i++) {
-      assertEquals(i, (Object) alist.get(i));
+      assertEquals((Integer) i, alist.get(i));
     }
   }
 }
