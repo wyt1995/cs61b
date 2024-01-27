@@ -7,7 +7,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private int size;
 
     /**
-     * The Node is a helper class for the doubly linked list
+     * The Node is a helper class for the doubly linked list.
      * It has an internal recursive structure.
      */
     private class Node {

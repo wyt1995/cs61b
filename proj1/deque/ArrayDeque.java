@@ -7,9 +7,9 @@ import java.util.Iterator;
  * @param <T> supports generic reference types.
  */
 public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
-    private final int initSize = 8;
     private T[] items;
     private int size;
+    private final int initSize = 8;
     private int arraySize = initSize;
     private int firstIndex = 0;
 
@@ -179,7 +179,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             printList.append(" ");
             arrayIndex = plusIndex(arrayIndex);
         }
-        String str = printList.toString(); // can also override toString()
+        String str = printList.toString(); // can also override toString() if return
         System.out.println(str);
     }
 
