@@ -191,19 +191,21 @@ public class ArrayDeque<Type> implements Deque<Type>, Iterable<Type> {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ArrayDeque other) {
-      if (this.size() != other.size()) {
+    if (obj == null || !(obj instanceof ArrayDeque)) {
+      return false;
+    }
+    ArrayDeque<Type> other = (ArrayDeque<Type>) obj;
+    if (this.size() != other.size()) {
+      return false;
+    }
+    for (int i = 0; i < size; i++) {
+      if (this.get(i) != other.get(i)) {
         return false;
       }
-      for (int i = 0; i < size; i++) {
-        if (this.get(i) != other.get(i)) {
-          return false;
-        }
-      }
-      return true;
     }
-    return false;
+    return true;
   }
+
 
   /**
    * Implements the Iterator interface to support iteration.
