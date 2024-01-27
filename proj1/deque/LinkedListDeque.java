@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<Type> implements Iterable<Type> {
+public class LinkedListDeque<Type> implements Deque<Type>, Iterable<Type> {
   /**
    * The Node is a helper class for the doubly linked list
    * It has an internal recursive structure.
@@ -48,6 +48,7 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
    * add an item to the front of the list instance.
    * @param item: the element to be added to the list.
    */
+  @Override
   public void addFirst(Type item) {
     Node newItem = new Node(item, sentinel, sentinel.next);
     this.sentinel.next.prev = newItem;
@@ -59,6 +60,7 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
    * add an item to the back of the list instance.
    * @param item: the element to be added to the list.
    */
+  @Override
   public void addLast(Type item) {
     Node newItem = new Node(item, sentinel.prev, sentinel);
     this.sentinel.prev.next = newItem;
@@ -67,15 +69,9 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
   }
 
   /**
-   * @return true if deque is empty, false otherwise.
-   */
-  public boolean isEmpty() {
-    return sentinel.next == sentinel;
-  }
-
-  /**
    * @return the size of this linked list instance.
    */
+  @Override
   public int size() {
     return this.size;
   }
@@ -84,6 +80,7 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
    * Removes and returns the item at the front of the deque.
    * If no such item exists, returns null.
    */
+  @Override
   public Type removeFirst() {
     if (this.size == 0) {
       return null;
@@ -98,6 +95,7 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
    * Removes and returns the item at the back of the deque.
    * If no such item exists, returns null.
    */
+  @Override
   public Type removeLast() {
     if (this.size == 0) {
       return null;
@@ -114,6 +112,7 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
    * If no such item exists, returns null.
    * @param index: an index integer
    */
+  @Override
   public Type get(int index) {
     if (index >= this.size) {
       return null;
@@ -146,6 +145,7 @@ public class LinkedListDeque<Type> implements Iterable<Type> {
   /**
    * Prints the items in the deque from first to last, separated by a space.
    */
+  @Override
   public void printDeque() {
     System.out.println(this);
   }

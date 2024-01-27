@@ -6,7 +6,7 @@ import java.util.Iterator;
  * ArrayDeque implements an array based list.
  * @param <Type> supports generic reference types.
  */
-public class ArrayDeque<Type> implements Iterable<Type> {
+public class ArrayDeque<Type> implements Deque<Type>, Iterable<Type> {
   private Type[] items;
   private int size;
   private final int initSize = 8;
@@ -85,6 +85,7 @@ public class ArrayDeque<Type> implements Iterable<Type> {
    * Add an element to the front of the list.
    * Resize the array twofolds if no enough space.
    */
+  @Override
   public void addFirst(Type item) {
     if (size == arraySize) {
       this.resize(size * 2);
@@ -97,6 +98,7 @@ public class ArrayDeque<Type> implements Iterable<Type> {
   /**
    * Add an element to the back of the list.
    */
+  @Override
   public void addLast(Type item) {
     if (size == arraySize) {
       this.resize(size * 2);
@@ -107,15 +109,9 @@ public class ArrayDeque<Type> implements Iterable<Type> {
   }
 
   /**
-   * @return if the list is empty.
-   */
-  public boolean isEmpty() {
-    return items[firstIndex] == null;
-  }
-
-  /**
    * @return the size of the list.
    */
+  @Override
   public int size() {
     return this.size;
   }
@@ -124,6 +120,7 @@ public class ArrayDeque<Type> implements Iterable<Type> {
    * Remove and return the first item of the list.
    * Resize the array to a half if the usage factor is less than 25%.
    */
+  @Override
   public Type removeFirst() {
     if (arraySize > initSize && size < 0.25 * arraySize) {
       resize(arraySize / 2);
@@ -142,6 +139,7 @@ public class ArrayDeque<Type> implements Iterable<Type> {
    * Remove and return the last item of the list.
    * Resize the array to a half if the usage factor is less than 25%.
    */
+  @Override
   public Type removeLast() {
     if (arraySize > initSize && size < 0.25 * arraySize) {
       resize(arraySize / 2);
@@ -159,6 +157,7 @@ public class ArrayDeque<Type> implements Iterable<Type> {
   /**
    * Return the element in the given index.
    */
+  @Override
   public Type get(int index) {
     if (index > size) {
       return null;
@@ -170,6 +169,7 @@ public class ArrayDeque<Type> implements Iterable<Type> {
   /**
    * Prints the entire list by calling the toString method.
    */
+  @Override
   public void printDeque() {
     System.out.println(this);
   }
