@@ -23,19 +23,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     /**
-     * The constructor for the linked list with the first item given.
-     * @param first: the first element of the linked list.
-     */
-    public LinkedListDeque(T first) {
-        this.sentinel = new Node(null, null, null);
-        Node firstItem = new Node(first, this.sentinel, this.sentinel);
-        this.sentinel.prev = firstItem;
-        this.sentinel.next = firstItem;
-        this.size = 1;
-    }
-
-    /**
-     * The constructor for the empty linked list,
+     * The constructor for an empty linked list,
      * in which sentinel.prev and sentinel.next both point to the sentinel node itself.
      */
     public LinkedListDeque() {
