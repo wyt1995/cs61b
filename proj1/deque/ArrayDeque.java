@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 /**
  * ArrayDeque implements an array based list.
- *
  * @param <T> supports generic reference types.
  */
 public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
@@ -15,33 +14,15 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private int firstIndex = 0;
 
     /**
-     * A constructor of an empty array list.
+     * The constructor of an empty array list.
      */
     public ArrayDeque() {
         this.items = (T[]) new Object[arraySize];
         this.size = 0;
     }
 
-    public static void main(String[] args) {
-        ArrayDeque<Integer> alist = new ArrayDeque<>();
-        for (int i = 0; i < 21; i++) {
-            alist.addFirst(i);
-            alist.addLast(i);
-        }
-        alist.printDeque();
-        System.out.println("Array size after adding: " + alist.arraySize);
-
-        for (int i = 0; i < 18; i++) {
-            alist.removeLast();
-            alist.removeFirst();
-        }
-        alist.printDeque();
-        System.out.println("Array size after removal: " + alist.arraySize);
-    }
-
     /**
      * Resize the underlying array by copying the entire list.
-     *
      * @param capacity the size allocated to the new list.
      */
     private void resize(int capacity) {
@@ -58,9 +39,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     /**
      * The index of the previous element.
-     *
      * @param i the current index in the array.
-     * @return the previous index
+     * @return the previous index.
      */
     private int minusIndex(int i) {
         int newIndex = i - 1;
@@ -72,9 +52,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     /**
      * The index of the next element.
-     *
      * @param i the current index in the array.
-     * @return the next index
+     * @return the next index.
      */
     private int plusIndex(int i) {
         int newIndex = i + 1;
@@ -118,6 +97,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     /**
      * Add an element to the back of the list.
+     * Resize the array twofolds if no enough space.
      */
     @Override
     public void addLast(T item) {
@@ -192,11 +172,6 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
      */
     @Override
     public void printDeque() {
-        System.out.println(this);
-    }
-
-    @Override
-    public String toString() {
         StringBuilder printList = new StringBuilder();
         int arrayIndex = firstIndex;
         for (int i = 0; i < size; i++) {
@@ -204,7 +179,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             printList.append(" ");
             arrayIndex = plusIndex(arrayIndex);
         }
-        return printList.toString();
+        String str = printList.toString(); // can also override toString()
+        System.out.println(str);
     }
 
     @Override
@@ -220,7 +196,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             return false;
         }
         for (int i = 0; i < size; i++) {
-            if (this.get(i).equals(other.get(i))) {
+            if (!(this.get(i).equals(other.get(i)))) {
                 return false;
             }
         }
@@ -240,7 +216,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private class ArrayDequeIterator implements Iterator<T> {
         private int position;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             position = 0;
         }
 

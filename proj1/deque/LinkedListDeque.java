@@ -7,6 +7,34 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private int size;
 
     /**
+     * The Node is a helper class for the doubly linked list
+     * It has an internal recursive structure.
+     */
+    private class Node {
+        private T item;
+        private Node prev;
+        private Node next;
+
+        private Node(T item, Node prev, Node next) {
+            this.item = item;
+            this.prev = prev;
+            this.next = next;
+        }
+    }
+
+    /**
+     * The constructor for the linked list with the first item given.
+     * @param first: the first element of the linked list.
+     */
+    public LinkedListDeque(T first) {
+        this.sentinel = new Node(null, null, null);
+        Node firstItem = new Node(first, this.sentinel, this.sentinel);
+        this.sentinel.prev = firstItem;
+        this.sentinel.next = firstItem;
+        this.size = 1;
+    }
+
+    /**
      * The constructor for the empty linked list,
      * in which sentinel.prev and sentinel.next both point to the sentinel node itself.
      */
@@ -19,7 +47,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
     /**
      * add an item to the front of the list instance.
-     *
      * @param item: the element to be added to the list.
      */
     @Override
@@ -32,7 +59,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
     /**
      * add an item to the back of the list instance.
-     *
      * @param item: the element to be added to the list.
      */
     @Override
@@ -63,6 +89,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         T elem = this.sentinel.next.item;
         this.sentinel.next.next.prev = this.sentinel;
         this.sentinel.next = this.sentinel.next.next;
+        this.size -= 1;
         return elem;
     }
 
@@ -85,7 +112,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     /**
      * Gets the item at the given index.
      * If no such item exists, returns null.
-     *
      * @param index: an index integer
      */
     @Override
@@ -123,11 +149,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
      */
     @Override
     public void printDeque() {
-        System.out.println(this);
-    }
-
-    @Override
-    public String toString() {
         StringBuilder printList = new StringBuilder();
         Node link = this.sentinel.next;
         while (link != sentinel) {
@@ -135,7 +156,8 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
             printList.append(" ");
             link = link.next;
         }
-        return printList.toString();
+        String str = printList.toString(); // can also override toString()
+        System.out.println(str);
     }
 
     @Override
@@ -151,31 +173,18 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
             return false;
         }
         for (int i = 0; i < size; i++) {
-            if (this.get(i).equals(other.get(i))) {
+            if (!(this.get(i).equals(other.get(i)))) {
                 return false;
             }
         }
         return true;
     }
 
+    /**
+     * @return an iterator object.
+     */
     public Iterator<T> iterator() {
         return new LinkedListIterator();
-    }
-
-    /**
-     * The Node is a helper class for the doubly linked list
-     * It has an internal recursive structure.
-     */
-    private class Node {
-        private T item;
-        private Node prev;
-        private Node next;
-
-        private Node(T item, Node prev, Node next) {
-            this.item = item;
-            this.prev = prev;
-            this.next = next;
-        }
     }
 
     /**
@@ -184,7 +193,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private class LinkedListIterator implements Iterator<T> {
         private int position;
 
-        public LinkedListIterator() {
+        LinkedListIterator() {
             position = 0;
         }
 

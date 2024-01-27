@@ -33,11 +33,6 @@ public class ArrayDequeTest {
   }
 
   @Test
-  public void testToString() {
-    assertEquals("1 2 3 4 ", alist.toString());
-  }
-
-  @Test
   public void testEquals() {
     ArrayDeque<Integer> other = new ArrayDeque<>();
     other.addFirst(1);
