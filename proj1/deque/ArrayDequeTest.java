@@ -4,8 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.util.Iterator;
 
 public class ArrayDequeTest {
   ArrayDeque<Integer> alist = new ArrayDeque<>();
@@ -34,12 +33,28 @@ public class ArrayDequeTest {
   }
 
   @Test
-  public void testPrintDeque() {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    PrintStream printed = new PrintStream(output);
-    System.setOut(printed);
-    alist.printDeque();
-    assertEquals("1 2 3 4 \n", output.toString());
+  public void testToString() {
+    assertEquals("1 2 3 4 ", alist.toString());
+  }
+
+  @Test
+  public void testEquals() {
+    ArrayDeque<Integer> other = new ArrayDeque<>();
+    other.addFirst(1);
+    other.addLast(2);
+    other.addLast(3);
+    other.addLast(4);
+    assertFalse(alist == other);
+    assertTrue(alist.equals(other));
+  }
+
+  @Test
+  public void testIterator() {
+    int i = 1;
+    for (Integer element : alist) {
+      assertEquals((Integer) i, element);
+      i += 1;
+    }
   }
 
   @Test

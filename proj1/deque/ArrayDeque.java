@@ -1,17 +1,30 @@
 package deque;
 
-public class ArrayDeque<Type> {
+import java.util.Iterator;
+
+/**
+ * ArrayDeque implements an array based list.
+ * @param <Type> supports generic reference types.
+ */
+public class ArrayDeque<Type> implements Iterable<Type> {
   private Type[] items;
   private int size;
   private final int initSize = 8;
   private int arraySize = initSize;
   private int firstIndex = 0;
 
+  /**
+   * A constructor of an empty array list.
+   */
   public ArrayDeque() {
     this.items = (Type[]) new Object[arraySize];
     this.size = 0;
   }
 
+  /**
+   * Resize the underlying array by copying the entire list.
+   * @param capacity the size allocated to the new list.
+   */
   private void resize(int capacity) {
     Type[] temp = (Type[]) new Object[capacity];
     int idx = firstIndex;
@@ -24,6 +37,11 @@ public class ArrayDeque<Type> {
     this.arraySize = capacity;
   }
 
+  /**
+   * The index of the previous element.
+   * @param i the current index in the array.
+   * @return the previous index
+   */
   private int minusIndex(int i) {
     int newIndex = i - 1;
     if (newIndex < 0) {
@@ -32,6 +50,11 @@ public class ArrayDeque<Type> {
     return newIndex;
   }
 
+  /**
+   * The index of the next element.
+   * @param i the current index in the array.
+   * @return the next index
+   */
   private int plusIndex(int i) {
     int newIndex = i + 1;
     if (newIndex >= arraySize) {
@@ -40,6 +63,9 @@ public class ArrayDeque<Type> {
     return newIndex;
   }
 
+  /**
+   * Given the index in the list, return the index in the underlying array.
+   */
   private int getIndex(int listIndex) {
     int arrayIndex = firstIndex + listIndex;
     if (arrayIndex >= arraySize) {
@@ -48,10 +74,17 @@ public class ArrayDeque<Type> {
     return arrayIndex;
   }
 
+  /**
+   * @return the array index of the last item of the list.
+   */
   private int getLastIndex() {
     return getIndex(this.size - 1);
   }
 
+  /**
+   * Add an element to the front of the list.
+   * Resize the array twofolds if no enough space.
+   */
   public void addFirst(Type item) {
     if (size == arraySize) {
       this.resize(size * 2);
@@ -61,6 +94,9 @@ public class ArrayDeque<Type> {
     size += 1;
   }
 
+  /**
+   * Add an element to the back of the list.
+   */
   public void addLast(Type item) {
     if (size == arraySize) {
       this.resize(size * 2);
@@ -70,23 +106,24 @@ public class ArrayDeque<Type> {
     size += 1;
   }
 
+  /**
+   * @return if the list is empty.
+   */
   public boolean isEmpty() {
     return items[firstIndex] == null;
   }
 
+  /**
+   * @return the size of the list.
+   */
   public int size() {
     return this.size;
   }
 
-  public void printDeque() {
-    int arrayIndex = firstIndex;
-    for (int i = 0; i < size; i++) {
-      System.out.print(items[arrayIndex] + " ");
-      arrayIndex = plusIndex(arrayIndex);
-    }
-    System.out.println();
-  }
-
+  /**
+   * Remove and return the first item of the list.
+   * Resize the array to a half if the usage factor is less than 25%.
+   */
   public Type removeFirst() {
     if (arraySize > initSize && size < 0.25 * arraySize) {
       resize(arraySize / 2);
@@ -101,6 +138,10 @@ public class ArrayDeque<Type> {
     return firstItem;
   }
 
+  /**
+   * Remove and return the last item of the list.
+   * Resize the array to a half if the usage factor is less than 25%.
+   */
   public Type removeLast() {
     if (arraySize > initSize && size < 0.25 * arraySize) {
       resize(arraySize / 2);
@@ -115,12 +156,83 @@ public class ArrayDeque<Type> {
     return lastItem;
   }
 
+  /**
+   * Return the element in the given index.
+   */
   public Type get(int index) {
     if (index > size) {
       return null;
     }
     int arrayIndex = getIndex(index);
     return items[arrayIndex];
+  }
+
+  /**
+   * Prints the entire list by calling the toString method.
+   */
+  public void printDeque() {
+    System.out.println(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder printList = new StringBuilder();
+    int arrayIndex = firstIndex;
+    for (int i = 0; i < size; i++) {
+      printList.append(items[arrayIndex]);
+      printList.append(" ");
+      arrayIndex = plusIndex(arrayIndex);
+    }
+    return printList.toString();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof ArrayDeque other) {
+      if (this.size() != other.size()) {
+        return false;
+      }
+      for (int i = 0; i < size; i++) {
+        if (this.get(i) != other.get(i)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Implements the Iterator interface to support iteration.
+   */
+  private class ArrayDequeIterator implements Iterator<Type> {
+    private int position;
+
+    public ArrayDequeIterator() {
+      position = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return position < size;
+    }
+
+    @Override
+    public Type next() {
+      int arrayIndex = getIndex(position);
+      position += 1;
+      return items[arrayIndex];
+    }
+  }
+
+  /**
+   * @return an iterator object.
+   */
+  public Iterator<Type> iterator() {
+    return new ArrayDequeIterator();
   }
 
 
