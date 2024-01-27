@@ -1,9 +1,11 @@
 package deque;
 
-public class LinkedListDeque<Type> {
+import java.util.Iterator;
+
+public class LinkedListDeque<Type> implements Iterable<Type> {
   /**
-   * The node is a helper class for the doubly linked list
-   * It has an internal recursive structure
+   * The Node is a helper class for the doubly linked list
+   * It has an internal recursive structure.
    */
   private class Node {
     private Type item;
@@ -20,7 +22,7 @@ public class LinkedListDeque<Type> {
   private int size;
 
   /**
-   * The constructor for the linked list with the first item provided
+   * The constructor for the linked list with the first item provided.
    * @param first: the first element of the linked list
    */
   public LinkedListDeque(Type first) {
@@ -76,18 +78,6 @@ public class LinkedListDeque<Type> {
    */
   public int size() {
     return this.size;
-  }
-
-  /**
-   * Prints the items in the deque from first to last, separated by a space.
-   */
-  public void printDeque() {
-    Node link = this.sentinel.next;
-    while (link != sentinel) {
-      System.out.print(link.item + " ");
-      link = link.next;
-    }
-    System.out.println();
   }
 
   /**
@@ -151,5 +141,70 @@ public class LinkedListDeque<Type> {
       return link.item;
     }
     return getHelper(idx-1, link.next);
+  }
+
+  /**
+   * Prints the items in the deque from first to last, separated by a space.
+   */
+  public void printDeque() {
+    System.out.println(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder printList = new StringBuilder();
+    Node link = this.sentinel.next;
+    while (link != sentinel) {
+      printList.append(link.item);
+      printList.append(" ");
+      link = link.next;
+    }
+    return printList.toString();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof LinkedListDeque other) {
+      if (this.size() != other.size()) {
+        return false;
+      }
+      for (int i = 0; i < size; i++) {
+        if (this.get(i) != other.get(i)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Implements the Iterator interface to support iteration.
+   */
+  private class LinkedListIterator implements Iterator<Type> {
+    private int position;
+
+    public LinkedListIterator() {
+      position = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return position < size;
+    }
+
+    @Override
+    public Type next() {
+      Type nextItem = get(position);
+      position += 1;
+      return nextItem;
+    }
+  }
+
+  public Iterator<Type> iterator() {
+    return new LinkedListIterator();
   }
 }

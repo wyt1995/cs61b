@@ -44,8 +44,12 @@ public class ArrayDequeTest {
     other.addLast(2);
     other.addLast(3);
     other.addLast(4);
+
     assertFalse(alist == other);
     assertTrue(alist.equals(other));
+
+    other.removeLast();
+    assertFalse(alist.equals(other));
   }
 
   @Test
