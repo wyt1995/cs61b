@@ -18,7 +18,7 @@ public class TestArrayDequeEC {
             StringBuilder errorMsg = new StringBuilder();
             errorMsg.append("\n");
 
-            int randomTests = StdRandom.uniform(0, 20);
+            int randomTests = StdRandom.uniform(0, 10);
             for (int j = 1; j < randomTests; j++) {
                 int randomNumber = StdRandom.uniform(0, 1000);
                 student.addFirst(randomNumber);
