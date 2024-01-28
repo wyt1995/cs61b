@@ -35,12 +35,12 @@ public class TestArrayDequeEC {
                 } else if (randomOperation == 4 && !(student.isEmpty()) && !(expected.isEmpty())) {
                     Integer studentItem = student.removeFirst();
                     Integer expectedItem = expected.removeFirst();
-                    errorMsg.append(String.format("removeFirst(): %s\n", expectedItem));
+                    errorMsg.append("removeFirst()\n");
                     assertEquals(errorMsg.toString(), expectedItem, studentItem);
                 } else if (randomOperation == 5 && !(student.isEmpty()) && !(expected.isEmpty())) {
                     Integer studentItem = student.removeLast();
                     Integer expectedItem = expected.removeLast();
-                    errorMsg.append(String.format("removeLast(): %s\n", expectedItem));
+                    errorMsg.append("removeLast()\n");
                     assertEquals(errorMsg.toString(), expectedItem, studentItem);
                 }
             }
