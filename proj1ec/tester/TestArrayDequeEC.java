@@ -13,12 +13,12 @@ public class TestArrayDequeEC {
         StudentArrayDeque<Integer> student = new StudentArrayDeque<>();
         ArrayDequeSolution<Integer> expected = new ArrayDequeSolution<>();
 
-        int total = 100;
+        int total = 500;
         for (int i = 0; i < total; i++) {
             StringBuilder errorMsg = new StringBuilder();
             errorMsg.append("\n");
 
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 10; j++) {
                 int randomOperation = StdRandom.uniform(0, 6);
                 if (randomOperation < 2) {
                     int randomNumber = StdRandom.uniform(0, 1000);
