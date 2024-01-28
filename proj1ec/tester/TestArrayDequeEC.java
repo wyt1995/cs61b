@@ -12,33 +12,41 @@ public class TestArrayDequeEC {
 
     @Test
     public void randomizedTest() {
-        int total = 500;
-        StringBuilder errorMsg = new StringBuilder();
-        errorMsg.append("Incorrect result after calling \n");
+        int total = 100;
         for (int i = 0; i < total; i++) {
-            int randomOperation = StdRandom.uniform(0, 4);
-            if (randomOperation == 0) {
+            double randomOperation = StdRandom.uniform();
+            StringBuilder errorMsg = new StringBuilder();
+            errorMsg.append("\n");
+
+            int randomTests = StdRandom.uniform(0, 20);
+            for (int j = 1; j < randomTests; j++) {
                 int randomNumber = StdRandom.uniform(0, 1000);
                 student.addFirst(randomNumber);
                 expected.addFirst(randomNumber);
                 errorMsg.append(String.format("addFirst(%s)\n", randomNumber));
-                assertEquals(errorMsg.toString(), expected.size(), student.size());
-            } else if (randomOperation == 1) {
-                int randomNumber = StdRandom.uniform(0, 1000);
+
+                randomNumber = StdRandom.uniform(0, 1000);
                 student.addLast(randomNumber);
                 expected.addLast(randomNumber);
                 errorMsg.append(String.format("addLast(%s)\n", randomNumber));
-                assertEquals(errorMsg.toString(), expected.size(), student.size());
-            } else if (randomOperation == 2 && !(student.isEmpty()) && !(expected.isEmpty())) {
-                Integer studentItem = student.removeFirst();
-                Integer expectedItem = expected.removeFirst();
-                errorMsg.append(String.format("removeFirst(): %s\n", expectedItem));
-                assertEquals(errorMsg.toString(), expectedItem, studentItem);
-            } else if (randomOperation == 3 && !(student.isEmpty()) && !(expected.isEmpty())) {
-                Integer studentItem = student.removeLast();
-                Integer expectedItem = expected.removeLast();
-                errorMsg.append(String.format("removeLast(): %s\n", expectedItem));
-                assertEquals(errorMsg.toString(), expectedItem, studentItem);
+            }
+            assertEquals(errorMsg.toString(), expected.size(), student.size());
+
+            for (int k = 1; k < randomTests; k++) {
+                if (!(student.isEmpty()) && !(expected.isEmpty())) {
+                    Integer studentItem;
+                    Integer expectedItem;
+                    if (randomOperation < 0.5) {
+                        studentItem = student.removeFirst();
+                        expectedItem = expected.removeFirst();
+                        errorMsg.append(String.format("removeFirst(): %s\n", expectedItem));
+                    } else {
+                        studentItem = student.removeLast();
+                        expectedItem = expected.removeLast();
+                        errorMsg.append(String.format("removeLast(): %s\n", expectedItem));
+                    }
+                    assertEquals(errorMsg.toString(), expectedItem, studentItem);
+                }
             }
         }
     }
