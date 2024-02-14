@@ -1,0 +1,68 @@
+HashMap Speed Test
+
+Strings of length L = 10
+
+Enter # strings to insert into hashmap.ULLMap: 1000
+    class hashmap.ULLMap: 0.01 sec
+    class hashmap.MyHashMap: 0.01 sec
+    Java's Built-in HashMap: 0.00 sec
+
+Enter # strings to insert into hashmap.ULLMap: 5000
+    class hashmap.ULLMap: 0.10 sec
+    class hashmap.MyHashMap: 0.01 sec
+    Java's Built-in HashMap: 0.00 sec
+
+Enter # strings to insert into hashmap.ULLMap: 10000
+    class hashmap.ULLMap: 0.30 sec
+    class hashmap.MyHashMap: 0.01 sec
+    Java's Built-in HashMap: 0.00 sec
+
+Enter # strings to insert into hashmap.ULLMap: 50000
+    class hashmap.ULLMap: 7.25 sec
+    class hashmap.MyHashMap: 0.03 sec
+    Java's Built-in HashMap: 0.02 sec
+
+Enter # strings to insert into hashmap.ULLMap: 100000
+    --Stack Overflow -- couldn't add 100000 strings of length 10.
+    class hashmap.MyHashMap: 0.07 sec
+    Java's Built-in HashMap: 0.04 sec
+
+
+
+
+Change Bucket Types: Speed Test
+
+Enter # strings to insert into each map: 1000
+    class hashmap.MyHashMapALBuckets: 0.01 sec
+    class hashmap.MyHashMapLLBuckets: 0.00 sec
+    class hashmap.MyHashMapTSBuckets: 0.00 sec
+    class hashmap.MyHashMapHSBuckets: 0.00 sec
+    class hashmap.MyHashMapPQBuckets: 0.00 sec
+
+Enter # strings to insert into each map: 5000
+    class hashmap.MyHashMapALBuckets: 0.01 sec
+    class hashmap.MyHashMapLLBuckets: 0.01 sec
+    class hashmap.MyHashMapTSBuckets: 0.00 sec
+    class hashmap.MyHashMapHSBuckets: 0.00 sec
+    class hashmap.MyHashMapPQBuckets: 0.00 sec
+
+Enter # strings to insert into each map: 10000
+    class hashmap.MyHashMapALBuckets: 0.00 sec
+    class hashmap.MyHashMapLLBuckets: 0.00 sec
+    class hashmap.MyHashMapTSBuckets: 0.00 sec
+    class hashmap.MyHashMapHSBuckets: 0.00 sec
+    class hashmap.MyHashMapPQBuckets: 0.00 sec
+
+Enter # strings to insert into each map: 100000
+    class hashmap.MyHashMapALBuckets: 0.07 sec
+    class hashmap.MyHashMapLLBuckets: 0.04 sec
+    class hashmap.MyHashMapTSBuckets: 0.04 sec
+    class hashmap.MyHashMapHSBuckets: 0.06 sec
+    class hashmap.MyHashMapPQBuckets: 0.04 sec
+
+Enter # strings to insert into each map: 1000000
+    class hashmap.MyHashMapALBuckets: 0.61 sec
+    class hashmap.MyHashMapLLBuckets: 0.71 sec
+    class hashmap.MyHashMapTSBuckets: 0.58 sec
+    class hashmap.MyHashMapHSBuckets: 0.66 sec
+    class hashmap.MyHashMapPQBuckets: 0.65 sec
