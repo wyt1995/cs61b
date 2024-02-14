@@ -222,6 +222,9 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return keySet().iterator();
     }
 
+    /**
+     * Print all pairs in the order of increasing key.
+     */
     public void printInOrder() {
         printHelper(this.node);
     }
@@ -231,7 +234,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             return;
         }
         printHelper(root.left);
-        System.out.print(minKey(root).key + " ");
+        System.out.print("(" + minKey(root).key + ": " + minKey(root).value + ") ");
         printHelper(root.right);
         System.out.println();
     }
