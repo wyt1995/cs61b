@@ -12,7 +12,7 @@ import java.util.Set;
  *  Assumes null keys will never be inserted, and does not resize down upon remove().
  *  @author Yutong Wang
  */
-public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
+public class MyHashMap<K, V> implements Map61B<K, V> {
     /**
      * Protected helper class to store key/value pairs
      * The protected qualifier allows subclass access
@@ -278,7 +278,7 @@ public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
         return new MyHashMapIterator();
     }
 
-    protected class MyHashMapIterator implements Iterator<K> {
+    private class MyHashMapIterator implements Iterator<K> {
         K[] keys;
         int position;
 
