@@ -1,5 +1,6 @@
 package hashmap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,7 +13,7 @@ import java.util.Set;
  *  Assumes null keys will never be inserted, and does not resize down upon remove().
  *  @author Yutong Wang
  */
-public class MyHashMap<K, V> implements Map61B<K, V> {
+public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
     /**
      * Protected helper class to store key/value pairs
      * The protected qualifier allows subclass access
@@ -169,6 +170,21 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         return this.nodeSize;
     }
 
+    int bucketSize() {
+        return this.bucketSize;
+    }
+
+    double currentLoad() {
+        return (double) nodeSize / (double) bucketSize;
+    }
+
+    /**
+     * Check if the number of nodes exceeds the max load factor.
+     */
+    boolean exceedLoad() {
+        return currentLoad() > loadFactor;
+    }
+
     /**
      * Insert a key-value pair into the HashMap.
      * If the key already exists, update its value.
@@ -188,14 +204,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         Node pair = createNode(key, value);
         buckets[index].add(pair);
         this.nodeSize += 1;
-    }
-
-    /**
-     * Check if the number of nodes exceeds the max load factor.
-     */
-    private boolean exceedLoad() {
-        double currentLoad = (double) nodeSize / (double) bucketSize;
-        return currentLoad > loadFactor;
     }
 
     /**
@@ -235,12 +243,30 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        if (key == null) {
+            throw new IllegalArgumentException("Map key cannot be null.");
+        }
+        int index = hashIndex(key);
+        V value = null;
+        if (buckets != null && buckets[index] != null) {
+            for (Node n : buckets[index]) {
+                if (n.key.equals(key)) {
+                    value = n.value;
+                    buckets[index].remove(n);
+                    return value;
+                }
+            }
+        }
+        return value;
     }
 
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        V valueInMap = get(key);
+        if (value.equals(valueInMap)) {
+            return remove(key);
+        }
+        return null;
     }
 
     /**
@@ -248,6 +274,28 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public Iterator<K> iterator() {
-        return keySet().iterator();
+        return new MyHashMapIterator();
+    }
+
+    protected class MyHashMapIterator implements Iterator<K> {
+        ArrayList<K> keys;
+        int position;
+
+        MyHashMapIterator() {
+            keys = new ArrayList<>(keySet());
+            position = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return position < nodeSize;
+        }
+
+        @Override
+        public K next() {
+            K key = keys.get(position);
+            position += 1;
+            return key;
+        }
     }
 }
