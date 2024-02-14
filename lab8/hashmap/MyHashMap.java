@@ -1,6 +1,5 @@
 package hashmap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -170,18 +169,18 @@ public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
         return this.nodeSize;
     }
 
-    int bucketSize() {
+    private int bucketSize() {
         return this.bucketSize;
     }
 
-    double currentLoad() {
+    private double currentLoad() {
         return (double) nodeSize / (double) bucketSize;
     }
 
     /**
      * Check if the number of nodes exceeds the max load factor.
      */
-    boolean exceedLoad() {
+    private boolean exceedLoad() {
         return currentLoad() > loadFactor;
     }
 
@@ -246,18 +245,21 @@ public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
         if (key == null) {
             throw new IllegalArgumentException("Map key cannot be null.");
         }
+        if (bucketSize > defaultInitSize && currentLoad() < loadFactor / 4.0) {
+            resize(bucketSize / 2);
+        }
         int index = hashIndex(key);
-        V value = null;
         if (buckets != null && buckets[index] != null) {
             for (Node n : buckets[index]) {
                 if (n.key.equals(key)) {
-                    value = n.value;
+                    V value = n.value;
                     buckets[index].remove(n);
+                    nodeSize -= 1;
                     return value;
                 }
             }
         }
-        return value;
+        return null;
     }
 
     @Override
@@ -270,19 +272,18 @@ public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
     }
 
     /**
-     * Supports iteration over the HashMap.
+     * Supports iteration over the HashMap using a protected Iterator class.
      */
-    @Override
     public Iterator<K> iterator() {
         return new MyHashMapIterator();
     }
 
     protected class MyHashMapIterator implements Iterator<K> {
-        ArrayList<K> keys;
+        K[] keys;
         int position;
 
         MyHashMapIterator() {
-            keys = new ArrayList<>(keySet());
+            keys = keySet().toArray((K[]) new Object[nodeSize]);
             position = 0;
         }
 
@@ -293,7 +294,7 @@ public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
 
         @Override
         public K next() {
-            K key = keys.get(position);
+            K key = keys[position];
             position += 1;
             return key;
         }
