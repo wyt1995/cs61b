@@ -195,7 +195,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     /**
      * Return the maximum (right-most) key in a BSTMap.
-     * This right-most key must have no children.
+     * This right-most key must have no child on the right.
      */
     private BSTNode maxKey(BSTNode root) {
         if (root.right == null) {
@@ -205,10 +205,34 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     /**
+     * Return the minimum (left-most) key in a BSTMap.
+     */
+    private BSTNode minKey(BSTNode root) {
+        if (root.left == null) {
+            return root;
+        }
+        return maxKey(root.left);
+    }
+
+    /**
      * Supports iteration over the keys of the BSTMap.
      */
     @Override
     public Iterator<K> iterator() {
         return keySet().iterator();
+    }
+
+    public void printInOrder() {
+        printHelper(this.node);
+    }
+
+    private void printHelper(BSTNode root) {
+        if (root == null) {
+            return;
+        }
+        printHelper(root.left);
+        System.out.print(minKey(root).key + " ");
+        printHelper(root.right);
+        System.out.println();
     }
 }
