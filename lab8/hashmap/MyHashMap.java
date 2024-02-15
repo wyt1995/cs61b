@@ -33,16 +33,16 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private int bucketSize;
     private double loadFactor;
     /** Default values */
-    private static final int defaultInitSize = 16;
-    private static final double defaultMaxLoad = 0.75;
+    private static final int DEFAULT_INIT_SIZE = 16;
+    private static final double DEFAULT_MAX_LOAD = 0.75;
 
     /** Constructors */
     public MyHashMap() {
-        this(defaultInitSize, defaultMaxLoad);
+        this(DEFAULT_INIT_SIZE, DEFAULT_MAX_LOAD);
     }
 
     public MyHashMap(int initialSize) {
-        this(initialSize, defaultMaxLoad);
+        this(initialSize, DEFAULT_MAX_LOAD);
     }
 
     /**
@@ -147,9 +147,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Map key cannot be null.");
-        }
         int index = hashIndex(key);
         if (buckets != null && buckets[index] != null) {
             for (Node n : buckets[index]) {
@@ -242,10 +239,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public V remove(K key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Map key cannot be null.");
-        }
-        if (bucketSize > defaultInitSize && currentLoad() < loadFactor / 4.0) {
+        if (bucketSize > DEFAULT_INIT_SIZE && currentLoad() < loadFactor / 4.0) {
             resize(bucketSize / 2);
         }
         int index = hashIndex(key);
