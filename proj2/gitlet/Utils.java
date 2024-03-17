@@ -19,8 +19,8 @@ import java.util.Formatter;
 import java.util.List;
 
 
-/** Assorted utilities.
- *
+/**
+ * Assorted utilities.
  * Give this file a good read as it provides several useful utility functions
  * to save you some time.
  *
@@ -118,8 +118,7 @@ class Utils {
     static void writeContents(File file, Object... contents) {
         try {
             if (file.isDirectory()) {
-                throw
-                    new IllegalArgumentException("cannot overwrite directory");
+                throw new IllegalArgumentException("cannot overwrite directory");
             }
             BufferedOutputStream str =
                 new BufferedOutputStream(Files.newOutputStream(file.toPath()));
@@ -136,7 +135,7 @@ class Utils {
         }
     }
 
-    /** Return an object of type T read from FILE, casting it to EXPECTEDCLASS.
+    /** Return an object of type T read from FILE, casting it to EXPECTED CLASS.
      *  Throws IllegalArgumentException in case of problems. */
     static <T extends Serializable> T readObject(File file,
                                                  Class<T> expectedClass) {
@@ -146,8 +145,7 @@ class Utils {
             T result = expectedClass.cast(in.readObject());
             in.close();
             return result;
-        } catch (IOException | ClassCastException
-                 | ClassNotFoundException excp) {
+        } catch (IOException | ClassCastException | ClassNotFoundException excp) {
             throw new IllegalArgumentException(excp.getMessage());
         }
     }
@@ -190,15 +188,15 @@ class Utils {
 
     /* OTHER FILE UTILITIES */
 
-    /** Return the concatentation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
+    /** Return the concatenation of FIRST and OTHERS into a File designator,
+     *  analogous to the {@link java.nio.file.Paths#get(String, String[])}
      *  method. */
     static File join(String first, String... others) {
         return Paths.get(first, others).toFile();
     }
 
-    /** Return the concatentation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
+    /** Return the concatenation of FIRST and OTHERS into a File designator,
+     *  analogous to the {@link java.nio.file.Paths#get(String, String[])}
      *  method. */
     static File join(File first, String... others) {
         return Paths.get(first.getPath(), others).toFile();
@@ -224,16 +222,25 @@ class Utils {
 
     /* MESSAGES AND ERROR REPORTING */
 
-    /** Return a GitletException whose message is composed from MSG and ARGS as
+    /** Return a GitletException whose message is composed of MSG and ARGS as
      *  for the String.format method. */
     static GitletException error(String msg, Object... args) {
         return new GitletException(String.format(msg, args));
     }
 
-    /** Print a message composed from MSG and ARGS as for the String.format
+    /** Print a message composed of MSG and ARGS as for the String.format
      *  method, followed by a newline. */
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
+    }
+
+    /**
+     * Print out error message and exit program with error code 0.
+     * @param msg the error message to be displayed.
+     */
+    static void exitWithError(String msg) {
+        message(msg);
+        System.exit(0);
     }
 }
