@@ -31,7 +31,9 @@ public class Main {
                 break;
             case "commit":
                 // handle the `commit [message]` command
+                validateGitInit();
                 validateArgc(args, 2);
+                makeCommit(args[1]);
                 break;
             case "rm":
                 // handle the `rm [filename]` command
