@@ -1,7 +1,10 @@
 package gitlet;
 
+import static gitlet.Repository.*;
+import static gitlet.Utils.*;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author Yutong Wang
  */
 public class Main {
 
@@ -9,16 +12,69 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
+        // handle empty args
+        validateNonemptyArgs(args);
+
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                // handle the `init` command
+                validateArgc(args, 1);
+                init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                // handle the `add [filename]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                Stage addStage = new Stage();
+                addStage.addToStagingArea(args[1]);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                // handle the `commit [message]` command
+                validateArgc(args, 2);
+                break;
+            case "rm":
+                // handle the `rm [filename]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                Stage rmStage = new Stage();
+                rmStage.removeFromStagingArea(args[1]);
+                break;
+            default:
+                exitWithError("No command with that name exists.");
+        }
+    }
+
+
+    /**
+     * Checks the number of arguments against the expected number.
+     * Exit program if they do not match.
+     * @param args Arguments array from command line.
+     * @param argc Expected number of arguments.
+     */
+    public static void validateArgc(String[] args, int argc) {
+        if (args.length != argc) {
+            exitWithError("Incorrect operands.");
+        }
+    }
+
+    /**
+     * Exit program if the command line argument is empty.
+     * @param args Arguments array from command line.
+     */
+    public static void validateNonemptyArgs(String[] args) {
+        if (args.length == 0) {
+            exitWithError("Please enter a command.");
+        }
+    }
+
+    /**
+     * Check whether the current working directory has a .gitlet subdirectory.
+     * If it is not initialized, exit the program.
+     */
+    public static void validateGitInit() {
+        if (!GITLET_DIR.exists()) {
+            exitWithError("Not in an initialized Gitlet directory.");
         }
     }
 }
