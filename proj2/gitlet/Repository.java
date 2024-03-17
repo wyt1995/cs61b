@@ -74,6 +74,10 @@ public class Repository {
      * @param message the commit message described by the user.
      */
     public static void makeCommit(String message) {
+        if (message.isEmpty()) {
+            exitWithError("Please enter a commit message.");
+        }
+
         // find the current branch and the latest commit
         String branchName = Head.getHeadState();
         Branch currentBranch = Branch.readCurrentBranch(branchName);

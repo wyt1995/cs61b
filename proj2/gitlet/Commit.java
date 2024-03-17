@@ -94,6 +94,9 @@ public class Commit implements Serializable {
         Stage currStage = new Stage();
         Map<String, String> add = currStage.stageMap();
         Set<String> remove = currStage.removeFiles();
+        if (add.isEmpty() && remove.isEmpty()) {
+            exitWithError("No changes added to the commit.");
+        }
 
         // create a new map to store info in the staging area
         Map<String, String> staged = new HashMap<>(add);
