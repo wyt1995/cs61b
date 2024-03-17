@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class Stage implements Serializable {
     /** The file for staging area under the .gitlet directory. */
     public static final File STAGE_FILE = join(GITLET_DIR, "stage");
 
-    /** Map from file name to a blob object. */
+    /** Map from file names to corresponding blob objects. */
     private final Map<String, String> addition;
     /** Set of file names to be removed from the current commit. */
     private final Set<String> removal;
@@ -40,18 +41,18 @@ public class Stage implements Serializable {
      * @return the file mapping of the current staging area.
      */
     public Map<String, String> stageMap() {
-        return this.addition;
+        return Collections.unmodifiableMap(addition);
     }
 
     /**
      * @return the set of files to be removed in the next commit.
      */
     public Set<String> removeFiles() {
-        return this.removal;
+        return Collections.unmodifiableSet(removal);
     }
 
     /**
-     * Find file under the current directory.
+     * Find the specified file under the current directory.
      * @param filename the name of the file.
      * @return a File object if it exists; otherwise, exit with error message.
      */
@@ -77,7 +78,7 @@ public class Stage implements Serializable {
         Blob fileBlob = new Blob(newFile);
 
         // if the current file version is identical to the most recent commit
-        Commit currCommit = Commit.readRecentCommit();
+        Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
         String oldBlobID = currCommit.commitMapping().get(filename);
         String newBlobID = fileBlob.blobHashValue();
         if (oldBlobID.equals(newBlobID)) {
@@ -101,7 +102,7 @@ public class Stage implements Serializable {
      */
     public void removeFromStagingArea(String filename) {
         File toBeRemoved = join(CWD, filename);
-        Commit currCommit = Commit.readRecentCommit();
+        Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
 
         if (!addition.containsKey(filename) && !currCommit.commitMapping().containsKey(filename)) {
             exitWithError("No reason to remove the file.");
@@ -117,8 +118,7 @@ public class Stage implements Serializable {
     }
 
     /**
-     * Read the saved stage file as a Map.
-     * @return the Map from file names to Blob objects.
+     * Read the previous staging area from the saved stage file.
      */
     protected static Stage readFromStage() {
         return readObject(STAGE_FILE, Stage.class);
@@ -127,7 +127,15 @@ public class Stage implements Serializable {
     /**
      * Save the current staging area into the stage file.
      */
-    private void writeToStage() {
+    protected void writeToStage() {
         writeObject(STAGE_FILE, this);
+    }
+
+    /**
+     * Clear staging area after making a commit.
+     */
+    protected void clearStagingArea() {
+        addition.clear();
+        removal.clear();
     }
 }
