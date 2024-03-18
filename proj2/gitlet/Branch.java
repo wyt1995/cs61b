@@ -50,7 +50,7 @@ public class Branch implements Serializable {
      * @return the most recent commit ID of the current branch.
      */
     public String getRecentCommit() {
-        return getCommits().getFirst();
+        return getCommits().get(0);
     }
 
     /**
@@ -59,7 +59,7 @@ public class Branch implements Serializable {
      * @param recentCommit a commit represented by its SHA-1 value.
      */
     public void addCommit(String recentCommit) {
-        commits.addFirst(recentCommit);
+        commits.add(0, recentCommit);
     }
 
     /**
