@@ -53,19 +53,6 @@ public class Stage implements Serializable {
     }
 
     /**
-     * Find the specified file under the current directory.
-     * @param filename the name of the file.
-     * @return a File object if it exists; otherwise, exit with error message.
-     */
-    private File findFile(String filename) {
-        File file = join(CWD, filename);
-        if (!file.exists()) {
-            exitWithError("File does not exist.");
-        }
-        return file;
-    }
-
-    /**
      * Add a file to the staging area.
      * If the file does not exist in the staging area, stage the file for addition.
      * If it is already staged, overwrite the previous entry with the new contents.
