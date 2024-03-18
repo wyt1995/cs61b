@@ -42,6 +42,12 @@ public class Main {
                 Stage rmStage = new Stage();
                 rmStage.removeFromStagingArea(args[1]);
                 break;
+            case "log":
+                // handle the `log` command
+                validateGitInit();
+                validateArgc(args, 1);
+                System.out.println(logHistory());
+                break;
             default:
                 exitWithError("No command with that name exists.");
         }

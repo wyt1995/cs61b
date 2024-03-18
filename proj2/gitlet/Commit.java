@@ -73,6 +73,20 @@ public class Commit implements Serializable {
     }
 
     /**
+     * @return a formatted timestamp of this commit.
+     */
+    public String commitTime() {
+        return dateFormat(this.timestamp);
+    }
+
+    /**
+     * @return the commit message.
+     */
+    public String commitMessage() {
+        return this.message;
+    }
+
+    /**
      * @return a string representation of a commit's hash value.
      */
     public String hashValue() {
@@ -120,8 +134,8 @@ public class Commit implements Serializable {
     /**
      * @return a formatted string of the given timestamp.
      */
-    private String dateFormat(Date time) {
-        Format dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static String dateFormat(Date time) {
+        Format dateFormatter = new SimpleDateFormat("E MMM d HH:mm:ss yyyy Z");
         return dateFormatter.format(time);
     }
 
@@ -131,5 +145,15 @@ public class Commit implements Serializable {
     protected void saveCommit() {
         File commitFile = join(COMMIT_DIR, this.hashValue);
         writeObject(commitFile, this);
+    }
+
+    /**
+     * Read a past commit from files in the commit directory.
+     * @param commitID the SHA-1 value of the commit.
+     * @return the Commit instance.
+     */
+    public static Commit readCommit(String commitID) {
+        File commitInfo = join(COMMIT_DIR, commitID);
+        return readObject(commitInfo, Commit.class);
     }
 }

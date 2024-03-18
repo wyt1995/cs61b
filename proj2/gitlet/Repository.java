@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.List;
 
 import static gitlet.Utils.*;
 
@@ -62,6 +63,7 @@ public class Repository {
 
         // create a master branch and HEAD which points to the initial commit
         Branch master = new Branch("master");
+        master.addCommit(firstCommit.hashValue());
         master.saveBranch();
         Head.setHeadPointer(master.branchName());
     }
@@ -93,6 +95,26 @@ public class Repository {
         currentBranch.saveBranch();
 
         // update the HEAD pointer
-        Head.setHeadPointer(commitHash);
+        Head.setHeadPointer(currentBranch.branchName());
+    }
+
+    /**
+     * Starting at the current head commit, collect information about each commit backwards
+     * along the commit tree until the initial commit, ignoring any second parents in merge commits.
+     * This is similar to the `git log --first-parent` command.
+     * @return a string representation of this branch's commit history.
+     */
+    public static String logHistory() {
+        Branch currentBranch = Branch.readCurrentBranch(Head.getHeadState());
+        List<String> commitHistory = currentBranch.getCommits();
+        StringBuilder logs = new StringBuilder();
+        for (String commitID : commitHistory) {
+            Commit next = Commit.readCommit(commitID);
+            logs.append("===\n");
+            logs.append("commit ").append(commitID).append("\n");
+            logs.append("Date: ").append(next.commitTime()).append("\n");
+            logs.append(next.commitMessage()).append("\n").append("\n");
+        }
+        return logs.toString();
     }
 }
