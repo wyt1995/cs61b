@@ -44,13 +44,6 @@ public class Blob implements Serializable {
     }
 
     /**
-     * @return the saved content of this blob as a stream of bytes.
-     */
-    public byte[] getContent() {
-        return content;
-    }
-
-    /**
      * Write blob into a new file under directory `.gitlet/object` with its SHA-1 as file name.
      */
     public void saveBlob() {

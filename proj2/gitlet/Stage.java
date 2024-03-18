@@ -108,7 +108,7 @@ public class Stage implements Serializable {
     /**
      * Read the previous staging area from the saved stage file.
      */
-    protected static Stage readFromStage() {
+    public static Stage readFromStage() {
         return readObject(STAGE_FILE, Stage.class);
     }
 
