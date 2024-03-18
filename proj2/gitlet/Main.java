@@ -48,7 +48,13 @@ public class Main {
                 validateArgc(args, 1);
                 System.out.println(logHistory());
                 break;
+            case "checkout":
+                // handle the `checkout [file name/commit id/branch name]` command
+                validateGitInit();
+                checkout(args);
+                break;
             default:
+                validateGitInit();
                 exitWithError("No command with that name exists.");
         }
     }

@@ -117,4 +117,79 @@ public class Repository {
         }
         return logs.toString();
     }
+
+    /**
+     * The checkout command has three possible use cases:
+     *   1. `java gitlet.Main checkout -- [file name]`
+     *   2. `java gitlet.Main checkout [commit id] -- [file name]`
+     *   3. `java gitlet.Main checkout [branch name]`
+     * which are handled by separate functions.
+     * @param args array of strings containing all command line arguments.
+     */
+    public static void checkout(String[] args) {
+        if (args.length == 3 && args[1].equals("--")) {
+            checkoutFromHead(args[2]);
+        }
+
+        else if (args.length == 4 && args[2].equals("--")) {
+            checkoutFromCommit(args[1], args[3]);
+        }
+
+        else if (args.length == 2) {
+            return;
+        }
+
+        else {
+            exitWithError("Incorrect operands.");
+        }
+    }
+
+    /**
+     * Take the version of the file in the head commit and puts it in the working directory,
+     * overwriting the version of the file that’s already there if there is one.
+     * The new version of the file is not staged.
+     * @param filename the name of the file to be checked out.
+     */
+    private static void checkoutFromHead(String filename) {
+        Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
+        overwriteFile(filename, currCommit);
+    }
+
+    /**
+     * Take the version of the file as it exists in the commit with the given id,
+     * and puts it in the working directory, overwriting the current file there if there is one.
+     * The new version of the file is not staged.
+     * @param commitID the SHA-1 ID of a previous commit.
+     * @param filename the name of the file to be checked out.
+     */
+    private static void checkoutFromCommit(String commitID, String filename) {
+        Commit prevCommit = Commit.readCommit(commitID);
+        overwriteFile(filename, prevCommit);
+    }
+
+    /**
+     * Overwrite the current file version with a previous commit.
+     */
+    private static void overwriteFile(String filename, Commit prevCommit) {
+        File currVersion = join(CWD, filename);
+        String blobID = prevCommit.commitMapping().get(filename);
+        if (blobID == null) {
+            exitWithError("File does not exist in that commit.");
+        }
+        byte[] saveVersion = Blob.readBlob(blobID);
+        writeContents(currVersion, (Object) saveVersion);
+    }
+
+    /**
+     * Find the specified file under the current directory.
+     * @param filename the name of the file.
+     * @return a File object if it exists; otherwise, exit with error message.
+     */
+    public static File findFile(String filename) {
+        File file = join(CWD, filename);
+        if (!file.exists()) {
+            exitWithError("File does not exist.");
+        }
+        return file;
+    }
 }
