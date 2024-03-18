@@ -154,6 +154,9 @@ public class Commit implements Serializable {
      */
     public static Commit readCommit(String commitID) {
         File commitInfo = join(COMMIT_DIR, commitID);
+        if (!commitInfo.exists()) {
+            exitWithError("No commit with that id exists.");
+        }
         return readObject(commitInfo, Commit.class);
     }
 }
