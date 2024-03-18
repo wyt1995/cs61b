@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static gitlet.Commit.COMMIT_DIR;
 import static gitlet.Repository.GITLET_DIR;
 import static gitlet.Utils.*;
 
@@ -69,8 +68,7 @@ public class Branch implements Serializable {
      */
     public static Commit readRecentCommit(Branch currBranch) {
         String currCommit = currBranch.getRecentCommit();
-        File commitInfo = join(COMMIT_DIR, currCommit);
-        return readObject(commitInfo, Commit.class);
+        return Commit.readCommit(currCommit);
     }
 
     /**

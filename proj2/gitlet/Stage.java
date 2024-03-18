@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -81,7 +82,7 @@ public class Stage implements Serializable {
         Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
         String oldBlobID = currCommit.commitMapping().get(filename);
         String newBlobID = fileBlob.blobHashValue();
-        if (oldBlobID.equals(newBlobID)) {
+        if (Objects.equals(oldBlobID, newBlobID)) {
             addition.remove(filename);
         } else {
             addition.put(filename, fileBlob.blobHashValue()); // stage the file for addition
