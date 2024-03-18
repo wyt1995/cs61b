@@ -59,6 +59,7 @@ public class Main {
                 validateGitInit();
                 validateArgc(args, 2);
                 createBranch(args[1]);
+                break;
             default:
                 validateGitInit();
                 exitWithError("No command with that name exists.");
