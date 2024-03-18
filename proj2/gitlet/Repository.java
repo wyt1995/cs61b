@@ -2,15 +2,16 @@ package gitlet;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import static gitlet.Utils.*;
 
 
-/** Represents a gitlet repository.
- *  It's a good idea to give a description here of what else this Class
- *  does at a high level.
+/**
+ * Represents a gitlet repository.
+ * Handles commands that interact with the working directory.
  *
- *  @author Yutong Wang
+ * @author Yutong Wang
  */
 public class Repository {
     /*
@@ -129,17 +130,11 @@ public class Repository {
     public static void checkout(String[] args) {
         if (args.length == 3 && args[1].equals("--")) {
             checkoutFromHead(args[2]);
-        }
-
-        else if (args.length == 4 && args[2].equals("--")) {
+        } else if (args.length == 4 && args[2].equals("--")) {
             checkoutFromCommit(args[1], args[3]);
-        }
-
-        else if (args.length == 2) {
-            return;
-        }
-
-        else {
+        } else if (args.length == 2) {
+            checkoutToBranch(args[1]);
+        } else {
             exitWithError("Incorrect operands.");
         }
     }
@@ -168,6 +163,19 @@ public class Repository {
     }
 
     /**
+     * Find the specified file under the current directory.
+     * @param filename the name of the file.
+     * @return a File object if it exists; otherwise, exit with error message.
+     */
+    public static File findFile(String filename) {
+        File file = join(CWD, filename);
+        if (!file.exists()) {
+            exitWithError("File does not exist.");
+        }
+        return file;
+    }
+
+    /**
      * Overwrite the current file version with a previous commit.
      */
     private static void overwriteFile(String filename, Commit prevCommit) {
@@ -181,15 +189,112 @@ public class Repository {
     }
 
     /**
-     * Find the specified file under the current directory.
-     * @param filename the name of the file.
-     * @return a File object if it exists; otherwise, exit with error message.
+     * Overwrite all files from a previous commit.
      */
-    public static File findFile(String filename) {
-        File file = join(CWD, filename);
-        if (!file.exists()) {
-            exitWithError("File does not exist.");
+    private static void overwriteAllFiles(Commit prevCommit) {
+        Set<String> savedFiles = prevCommit.commitMapping().keySet();
+        for (String file : savedFiles) {
+            overwriteFile(file, prevCommit);
         }
-        return file;
+    }
+
+    /**
+     * Creates a new branch with the given name, and points it at the current commit.
+     * It does NOT immediately switch to the newly created branch.
+     * If a branch with the given name already exists, exit with an error message.
+     * @param branchName the name of the new branch to be created.
+     */
+    public static void createBranch(String branchName) {
+        validateNewBranch(branchName);
+        Branch diverged = new Branch(branchName);
+        Commit currentCommit = Branch.readRecentCommit(Head.getHeadState());
+        diverged.addCommit(currentCommit.hashValue());
+        diverged.saveBranch();
+    }
+
+    /**
+     * Take all files in the HEAD commit of the given branch, and put them in the working directory.
+     * If a file exists in the working directory, it will be overwritten by the saved version.
+     * If a file is tracked in the current branch but not in the checked-out branch, it will be deleted.
+     * Overwrite the versions of the files that are already there if they exist.
+     * The given branch will be considered the current branch (HEAD).
+     * @param branchName the name of branch to be checked out.
+     */
+    public static void checkoutToBranch(String branchName) {
+        validateBranchExists(branchName);
+        validateCurrentBranch(branchName);
+        checkUntrackedFiles();
+
+        Commit commitInBranch = Branch.readRecentCommit(branchName);
+        overwriteAllFiles(commitInBranch);
+        deleteTrackedFiles(commitInBranch);
+
+        Head.setHeadPointer(branchName);
+    }
+
+    /**
+     * Check if a branch name already exists before creating a new one.
+     * @param branchName the given name of the new branch.
+     */
+    private static void validateNewBranch(String branchName) {
+        List<String> allBranches = plainFilenamesIn(Branch.BRANCH_DIR);
+        if (allBranches != null && allBranches.contains(branchName)) {
+            exitWithError("A branch with that name already exists.");
+        }
+    }
+
+    /**
+     * Check if the given branch name has been created before.
+     */
+    private static void validateBranchExists(String branchName) {
+        List<String> allBranches = plainFilenamesIn(Branch.BRANCH_DIR);
+        if (allBranches == null || !allBranches.contains(branchName)) {
+            exitWithError("No such branch exists.");
+        }
+    }
+
+    /**
+     * Check if the given branch name is the current HEAD branch.
+     */
+    private static void validateCurrentBranch(String branchName) {
+        String currBranch = Head.getHeadState();
+        if (currBranch.equals(branchName)) {
+            exitWithError("No need to checkout the current branch.");
+        }
+    }
+
+    /**
+     * Check if untracked file exists. If a working file version is not being tracked by
+     * the most recent commit in the current branch, exit with an error message.
+     */
+    private static void checkUntrackedFiles() {
+        Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
+        Set<String> savedFiles = currCommit.commitMapping().keySet();
+        List<String> workingFiles = plainFilenamesIn(CWD);
+        if (workingFiles == null) {
+            return;
+        }
+        for (String filename : workingFiles) {
+            if (!savedFiles.contains(filename)) {
+                exitWithError("There is an untracked file in the way; " +
+                        "delete it, or add and commit it first.");
+            }
+        }
+    }
+
+    /**
+     * Delete files that are not present in the given commit.
+     */
+    private static void deleteTrackedFiles(Commit prevCommit) {
+        Set<String> savedFiles = prevCommit.commitMapping().keySet();
+        List<String> workingFiles = plainFilenamesIn(CWD);
+        if (workingFiles == null) {
+            return;
+        }
+        for (String filename : workingFiles) {
+            if (!savedFiles.contains(filename)) {
+                restrictedDelete(filename);
+            }
+        }
     }
 }
