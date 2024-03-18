@@ -3,13 +3,14 @@ package gitlet;
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
-/** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author Yutong Wang
+/**
+ * Driver class for Gitlet, a subset of the Git version-control system.
+ * @author Yutong Wang
  */
 public class Main {
-
-    /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ... 
+    /**
+     * Usage: java gitlet.Main ARGS, where ARGS contains
+     * <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) {
         // handle empty args
@@ -53,6 +54,11 @@ public class Main {
                 validateGitInit();
                 checkout(args);
                 break;
+            case "branch":
+                // handle the `branch [branch name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                createBranch(args[1]);
             default:
                 validateGitInit();
                 exitWithError("No command with that name exists.");

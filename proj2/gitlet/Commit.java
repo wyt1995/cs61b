@@ -21,6 +21,8 @@ import static gitlet.Utils.*;
 public class Commit implements Serializable {
     /** The logs directory for commits information. */
     public static final File COMMIT_DIR = join(GITLET_DIR, "logs");
+    /** The automatic message of the initial commit. */
+    public static final String INIT_COMMIT_MSG = "initial commit";
 
     /** The date and time of this Commit. */
     private final Date timestamp;
@@ -42,7 +44,7 @@ public class Commit implements Serializable {
      */
     public Commit() {
         this.timestamp = new Date(0);  // 00:00:00 UTC, Thursday, January 1st, 1970
-        this.message = "initial commit";
+        this.message = INIT_COMMIT_MSG;
         this.parent = this.secondParent = "";  // empty string represents no such parent
         this.fileMapping = new HashMap<>();
         this.hashValue = generateHashValue();
