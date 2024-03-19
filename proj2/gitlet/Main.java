@@ -50,6 +50,7 @@ public class Main {
                 System.out.println(logHistory());
                 break;
             case "global-log":
+                // handle the `log` command
                 validateGitInit();
                 validateArgc(args, 1);
                 System.out.println(globalLog());
@@ -59,7 +60,14 @@ public class Main {
                 validateGitInit();
                 checkout(args);
                 break;
+            case "find":
+                // handle the `find [commit message]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                System.out.println(findCommitID(args[1]));
+                break;
             case "status":
+                // handle the `status` command
                 validateGitInit();
                 validateArgc(args, 1);
                 System.out.println(status());
@@ -69,6 +77,17 @@ public class Main {
                 validateGitInit();
                 validateArgc(args, 2);
                 createBranch(args[1]);
+                break;
+            case "rm-branch":
+                // handle the `rm-branch [branch name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                removeBranch(args[1]);
+                break;
+            case "reset":
+                // handle the `reset [commit id]` command
+                validateGitInit();
+                validateArgc(args, 2);
                 break;
             default:
                 validateGitInit();

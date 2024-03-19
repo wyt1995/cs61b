@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static gitlet.Utils.*;
 
@@ -346,6 +348,16 @@ public class Repository {
     }
 
     /**
+     * Delete the branch with the given name. Only delete the pointer associated with the branch;
+     * but do not delete all commits that were created under the branch.
+     */
+    public static void removeBranch(String branchName) {
+        validateRmBranchExists(branchName);
+        validateRmCurrentBranch(branchName);
+        restrictedDelete(join(Branch.BRANCH_DIR, branchName));
+    }
+
+    /**
      * Check if a branch name already exists before creating a new one.
      * @param branchName the given name of the new branch.
      */
@@ -367,12 +379,42 @@ public class Repository {
     }
 
     /**
+     * Exit with error message if user trying to remove a branch that does not exist.
+     */
+    private static void validateRmBranchExists(String branchName) {
+        List<String> allBranches = Branch.getAllBranches();
+        if (!allBranches.contains(branchName)) {
+            exitWithError("A branch with that name does not exist.");
+        }
+    }
+
+    /**
      * Check if the given branch name is the current HEAD branch.
      */
     private static void validateCurrentBranch(String branchName) {
         String currBranch = Head.getHeadState();
         if (currBranch.equals(branchName)) {
             exitWithError("No need to checkout the current branch.");
+        }
+    }
+
+    /**
+     * Exit with an error message if user trying to remove the current branch.
+     */
+    private static void validateRmCurrentBranch(String branchName) {
+        String currBranch = Head.getHeadState();
+        if (currBranch.equals(branchName)) {
+            exitWithError("Cannot remove the current branch.");
+        }
+    }
+
+    /**
+     * Exit with an error message if the given commit hash value does not exist.
+     */
+    private static void validateCommitExists(String commitID) {
+        List<String> allCommits = Commit.readAllCommits();
+        if (!allCommits.contains(commitID)) {
+            exitWithError("No commit with that id exists.");
         }
     }
 
@@ -420,8 +462,8 @@ public class Repository {
         List<String> workingFiles = allWorkingFiles();
         List<String> untracked = new ArrayList<>();
         for (String fileName : workingFiles) {
-            if (!added.contains(fileName) && !removed.contains(fileName)
-                    && !tracked.contains(fileName)) {
+            boolean knowOf = Stream.of(added, removed, tracked).anyMatch(s -> s.contains(fileName));
+            if (!knowOf) {
                 untracked.add(fileName);
             }
         }
@@ -445,8 +487,9 @@ public class Repository {
         List<String> modified = modifiedFiles(stagedMap, removedFiles, commitMap);
         List<String> untracked = getUntrackedFiles(stagedFiles, removedFiles, commitMap.keySet());
 
-        if (!stagedFiles.isEmpty() || !removedFiles.isEmpty()
-            || !modified.isEmpty() || !untracked.isEmpty()) {
+        boolean clear = Stream.of(stagedFiles, removedFiles, modified, untracked)
+                              .allMatch(Collection::isEmpty);
+        if (!clear) {
             exitWithError("There is an untracked file in the way; "
                     + "delete it, or add and commit it first.");
         }
@@ -463,5 +506,33 @@ public class Repository {
                 restrictedDelete(filename);
             }
         }
+    }
+
+    /**
+     * Prints out the IDs of all commits that have the given commit message, one per line.
+     * If there are multiple such commits, it prints the IDs out on separate lines.
+     * @return a string of commit IDs.
+     */
+    public static String findCommitID(String commitMsg) {
+        List<String> commitIDs = Commit.readAllCommits()
+                              .stream()
+                              .filter(id -> Commit.readCommit(id).commitMessage().equals(commitMsg))
+                              .collect(Collectors.toList());
+        return String.join("\n", commitIDs);
+    }
+
+    /**
+     * Check out all the files tracked by the given commit ID.
+     * Removes tracked files that are not present in that commit.
+     * Also moves the current branch’s head to that commit node.
+     * @param commitID the SHA-1 value of a previous commit.
+     */
+    public static void resetHard(String commitID) {
+        validateCommitExists(commitID);
+        checkUntrackedFiles();
+
+        Commit prevCommit = Commit.readCommit(commitID);
+        overwriteAllFiles(prevCommit);
+        deleteTrackedFiles(prevCommit);
     }
 }
