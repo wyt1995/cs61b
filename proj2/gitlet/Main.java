@@ -54,6 +54,11 @@ public class Main {
                 validateGitInit();
                 checkout(args);
                 break;
+            case "status":
+                validateGitInit();
+                validateArgc(args, 1);
+                System.out.println(status());
+                break;
             case "branch":
                 // handle the `branch [branch name]` command
                 validateGitInit();
