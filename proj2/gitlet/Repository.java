@@ -116,12 +116,13 @@ public class Repository {
      * @return a string representation of this branch's commit history.
      */
     public static String logHistory() {
-        Commit next = Branch.readRecentCommit(Head.getHeadState());
+        String next = Branch.readCurrentBranch(Head.getHeadState()).getRecentCommit();
         StringBuilder log = new StringBuilder();
-        do {
-            log.append(next.toString()).append("\n");
-            next = Commit.readCommit(next.parentCommit());
-        } while (next != null);
+        while (next != null) {
+            Commit commit = Commit.readCommit(next);
+            log.append(commit.toString()).append("\n");
+            next = commit.parentCommit();
+        }
         return log.toString();
     }
 
