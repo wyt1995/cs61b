@@ -124,6 +124,14 @@ public class Repository {
         return logs.toString();
     }
 
+    /**
+     * @return a string displaying the current status, including:
+     *   - branches that currently exist, marking the head branch with a *
+     *   - staged files: staged for addition
+     *   - Removed files: staged for removal
+     *   - Modified files that are not staged for commit
+     *   - Untracked files
+     */
     public static String status() {
         StringBuilder status = new StringBuilder();
 
@@ -238,6 +246,13 @@ public class Repository {
     }
 
     /**
+     * Find the specified file under the current directory. Create the file if it does not exist.
+     */
+    public static File createFile(String filename) {
+        return join(CWD, filename);
+    }
+
+    /**
      * @return all plain files in the working directory but null pointer safe.
      */
     public static List<String> allWorkingFiles() {
@@ -259,12 +274,21 @@ public class Repository {
     }
 
     /**
+     * Create or overwrite file based on a previous commit.
+     */
+    private static void overwriteFromFile(String filename, Commit prevCommit) {
+        String blobID = prevCommit.commitMapping().get(filename);
+        byte[] savedVersion = Blob.readBlob(blobID);
+        writeContents(createFile(filename), (Object) savedVersion);
+    }
+
+    /**
      * Overwrite all files from a previous commit.
      */
     private static void overwriteAllFiles(Commit prevCommit) {
         Set<String> savedFiles = prevCommit.commitMapping().keySet();
         for (String file : savedFiles) {
-            overwriteFile(file, prevCommit);
+            overwriteFromFile(file, prevCommit);
         }
     }
 
