@@ -49,7 +49,8 @@ public class Repository {
     public static void init() {
         // handle exception case
         if (GITLET_DIR.exists()) {
-            exitWithError("A Gitlet version-control system already exists in the current directory.");
+            exitWithError("A Gitlet version-control system already exists "
+                    + "in the current directory.");
         }
 
         // make directories
@@ -346,7 +347,7 @@ public class Repository {
         List<String> workingFiles = allWorkingFiles();
         for (String filename : workingFiles) {
             String currVersion = new Blob(findFile(filename)).blobHashValue();
-            if (tracked.containsKey(filename) && currVersion.equals(tracked.get(filename))) {
+            if (tracked.containsKey(filename) && !currVersion.equals(tracked.get(filename))) {
                 modified.add(filename + " (modified)");
             } else if (added.containsKey(filename) && !currVersion.equals(added.get(filename))) {
                 modified.add(filename + " (modified)");
@@ -358,7 +359,7 @@ public class Repository {
             }
         }
         for (String trackFile : tracked.keySet()) {
-            if (!removed.contains(trackFile) && !workingFiles.contains(trackFile)) {
+            if (!workingFiles.contains(trackFile) && !removed.contains(trackFile)) {
                 modified.add(trackFile + " (deleted)");
             }
         }
