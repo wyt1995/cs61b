@@ -89,17 +89,20 @@ public class Stage implements Serializable {
      * @param filename as specified by the command line argument.
      */
     public void removeFromStagingArea(String filename) {
-        File toBeRemoved = findFile(filename);
-        String headBranch = Head.getHeadState();
-        Map<String, String> currCommitMap = Branch.readRecentCommit(headBranch).commitMapping();
+        File toBeRemoved = join(CWD, filename);
+        Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
+        boolean staged = addition.containsKey(filename);
+        boolean saved = currCommit.commitMapping().containsKey(filename);
 
-        if (!addition.containsKey(filename) && !currCommitMap.containsKey(filename)) {
+        if (!staged && !saved) {
             exitWithError("No reason to remove the file.");
         }
 
-        removal.add(filename);      // stage for removal
-        addition.remove(filename);  // unstage the file from addition
-        if (currCommitMap.containsKey(filename)) {
+        if (staged) {
+            addition.remove(filename);  // unstage the file from addition
+        }
+        if (saved) {
+            removal.add(filename);  // stage for removal if it has not been added
             restrictedDelete(toBeRemoved);
         }
         writeToStage();  // update the stage file after addition or removal
