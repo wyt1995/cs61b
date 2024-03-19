@@ -116,9 +116,7 @@ public class Commit implements Serializable {
 
         // create a new map to store info in the staging area
         Map<String, String> staged = new HashMap<>(add);
-        for (String file : remove) {
-            staged.remove(file);
-        }
+        staged.keySet().removeAll(remove);
 
         // clear staging area after a copy has been made
         currStage.clearStagingArea();
