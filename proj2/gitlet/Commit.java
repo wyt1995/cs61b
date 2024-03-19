@@ -58,7 +58,7 @@ public class Commit implements Serializable {
     }
 
     /**
-     * TODO: Constructor for the merge command.
+     * Constructor for the merge command.
      * @param message the commit message as specified in the command line argument.
      * @param parent the reference to the parent commit.
      *               All commit must have a parent except for the initial commit.

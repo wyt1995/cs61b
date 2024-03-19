@@ -73,10 +73,10 @@ public class Stage implements Serializable {
             addition.remove(filename);
         } else {
             addition.put(filename, fileBlob.blobHashValue()); // stage the file for addition
-            removal.remove(filename);  // no longer staged for removal
             fileBlob.saveBlob();  // save a snapshot
         }
-        // In either cases, update the stage file
+        // In either case, update the stage file
+        removal.remove(filename);  // no longer staged for removal
         writeToStage();
     }
 
