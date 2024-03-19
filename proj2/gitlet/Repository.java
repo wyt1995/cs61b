@@ -118,7 +118,7 @@ public class Repository {
     public static String logHistory() {
         String next = Branch.readCurrentBranch(Head.getHeadState()).getRecentCommit();
         StringBuilder log = new StringBuilder();
-        while (next != null) {
+        while (!next.isEmpty()) {
             Commit commit = Commit.readCommit(next);
             log.append(commit.toString()).append("\n");
             next = commit.parentCommit();
