@@ -127,16 +127,11 @@ public class Repository {
      * @return a string representation of all commits that have been made in the order of time.
      */
     public static String globalLog() {
-        List<String> allBranches = Branch.getAllBranches();
-        List<Commit> allCommits = new ArrayList<>();
-        for (String branch : allBranches) {
-            List<String> commitsInBranch = Branch.readCurrentBranch(branch).getCommits();
-            allCommits.addAll(commitsInBranch.stream()
-                                             .map(Commit::readCommit)
-                                             .collect(Collectors.toList()));
-        }
-        allCommits.sort(Comparator.comparing(Commit::timestamp));
-
+        List<Commit> allCommits = Commit.readAllCommits()
+                                        .stream()
+                                        .map(Commit::readCommit)
+                                        .sorted(Comparator.comparing(Commit::timestamp).reversed())
+                                        .collect(Collectors.toList());
         StringBuilder logs = new StringBuilder();
         for (Commit next : allCommits) {
             logs.append(commitLog(next));

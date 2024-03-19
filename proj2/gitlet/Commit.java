@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.Serializable;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -165,5 +167,13 @@ public class Commit implements Serializable {
             exitWithError("No commit with that id exists.");
         }
         return readObject(commitInfo, Commit.class);
+    }
+
+    /**
+     * @return all plain files in the working directory but null pointer safe.
+     */
+    public static List<String> readAllCommits() {
+        List<String> allCommits = plainFilenamesIn(COMMIT_DIR);
+        return (allCommits == null) ? new ArrayList<>() : allCommits;
     }
 }
