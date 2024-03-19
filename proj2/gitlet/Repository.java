@@ -404,14 +404,20 @@ public class Repository {
      * the most recent commit in the current branch, exit with an error message.
      */
     private static void checkUntrackedFiles() {
+        Stage stagingArea = new Stage();
+        Map<String, String> stagedMap = stagingArea.stageMap();
+        Set<String> stagedFiles = stagedMap.keySet();
+        Set<String> removedFiles = stagingArea.removeFiles();
+
         Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
-        Set<String> savedFiles = currCommit.commitMapping().keySet();
-        List<String> workingFiles = allWorkingFiles();
-        for (String filename : workingFiles) {
-            if (!savedFiles.contains(filename)) {
-                exitWithError("There is an untracked file in the way; "
-                        + "delete it, or add and commit it first.");
-            }
+        Map<String, String> commitMap = currCommit.commitMapping();
+        List<String> modified = modifiedFiles(stagedMap, removedFiles, commitMap);
+        List<String> untracked = getUntrackedFiles(stagedFiles, removedFiles, commitMap.keySet());
+
+        if (!stagedFiles.isEmpty() || !removedFiles.isEmpty() ||
+               !modified.isEmpty() || !untracked.isEmpty()) {
+            exitWithError("There is an untracked file in the way; "
+                    + "delete it, or add and commit it first.");
         }
     }
 
