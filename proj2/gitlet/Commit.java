@@ -111,6 +111,10 @@ public class Commit implements Serializable {
         return Collections.unmodifiableMap(fileMapping);
     }
 
+    public String parentCommit() {
+        return this.parent;
+    }
+
     /**
      * Read from the current staging area, and then clear the stage file.
      */
@@ -175,5 +179,16 @@ public class Commit implements Serializable {
     public static List<String> readAllCommits() {
         List<String> allCommits = plainFilenamesIn(COMMIT_DIR);
         return (allCommits == null) ? new ArrayList<>() : allCommits;
+    }
+
+    /**
+     * @return a formatted commit information.
+     */
+    @Override
+    public String toString() {
+        return "===\n"
+               + "commit " + this.hashValue() + "\n"
+               + "Date: " + this.commitTime() + "\n"
+               + this.commitMessage() + "\n";
     }
 }

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,14 +116,13 @@ public class Repository {
      * @return a string representation of this branch's commit history.
      */
     public static String logHistory() {
-        Branch currentBranch = Branch.readCurrentBranch(Head.getHeadState());
-        List<String> commitHistory = currentBranch.getCommits();
-        StringBuilder logs = new StringBuilder();
-        for (String commitID : commitHistory) {
-            Commit next = Commit.readCommit(commitID);
-            logs.append(commitLog(next));
+        Commit next = Branch.readRecentCommit(Head.getHeadState());
+        StringBuilder log = new StringBuilder();
+        while (next != null) {
+            log.append(next.toString()).append("\n");
+            next = Commit.readCommit(next.parentCommit());
         }
-        return logs.toString();
+        return log.toString();
     }
 
     /**
@@ -135,24 +135,10 @@ public class Repository {
                                         .sorted(Comparator.comparing(Commit::timestamp).reversed())
                                         .collect(Collectors.toList());
         StringBuilder logs = new StringBuilder();
-        for (Commit next : allCommits) {
-            logs.append(commitLog(next));
+        for (Commit next : new LinkedHashSet<>(allCommits)) {
+            logs.append(next.toString()).append("\n");
         }
         return logs.toString();
-    }
-
-    /**
-     * Build a formatted commit information.
-     * @param next the commit to be read.
-     * @return a StringBuilder.
-     */
-    private static StringBuilder commitLog(Commit next) {
-        StringBuilder log = new StringBuilder();
-        log.append("===\n");
-        log.append("commit ").append(next.hashValue()).append("\n");
-        log.append("Date: ").append(next.commitTime()).append("\n");
-        log.append(next.commitMessage()).append("\n").append("\n");
-        return log;
     }
 
     /**
@@ -539,7 +525,6 @@ public class Repository {
         deleteTrackedFiles(prevCommit);
 
         Branch currBranch = Branch.readCurrentBranch(Head.getHeadState());
-        currBranch.getCommits().remove(commitID);
         currBranch.addCommit(commitID);
         currBranch.saveBranch();
     }
