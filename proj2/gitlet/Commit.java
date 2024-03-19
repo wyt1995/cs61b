@@ -70,7 +70,7 @@ public class Commit implements Serializable {
         this.parent = parent.hashValue();
         this.secondParent = (secondParent == null) ? "" : secondParent.hashValue();
         this.fileMapping = new HashMap<>(parent.commitMapping());
-        this.fileMapping.putAll(readStagingArea());
+        this.readStagingArea();
         this.hashValue = generateHashValue();
     }
 
@@ -104,9 +104,8 @@ public class Commit implements Serializable {
 
     /**
      * Read from the current staging area, and then clear the stage file.
-     * @return the file mapping to be committed.
      */
-    private Map<String, String> readStagingArea() {
+    private void readStagingArea() {
         Stage currStage = new Stage();
         Map<String, String> add = currStage.stageMap();
         Set<String> remove = currStage.removeFiles();
@@ -115,13 +114,12 @@ public class Commit implements Serializable {
         }
 
         // create a new map to store info in the staging area
-        Map<String, String> staged = new HashMap<>(add);
-        staged.keySet().removeAll(remove);
+        this.fileMapping.putAll(add);
+        this.fileMapping.keySet().removeAll(remove);
 
         // clear staging area after a copy has been made
         currStage.clearStagingArea();
         currStage.writeToStage();
-        return staged;
     }
 
     /**
