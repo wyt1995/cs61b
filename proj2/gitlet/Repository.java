@@ -519,7 +519,7 @@ public class Repository {
      */
     public static void resetHard(String commitID) {
         validateCommitExists(commitID);
-        checkUntrackedFiles();
+        checkFilesBeforeReset();
 
         Commit prevCommit = Commit.readCommit(commitID);
         overwriteAllFiles(prevCommit);
@@ -528,5 +528,23 @@ public class Repository {
         Branch currBranch = Branch.readCurrentBranch(Head.getHeadState());
         currBranch.addCommit(commitID);
         currBranch.saveBranch();
+    }
+
+    /**
+     * Check if there is any untracked file before reset to a previous commit.
+     */
+    private static void checkFilesBeforeReset() {
+        Stage stagingArea = new Stage();
+        Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
+        List<String> untracked = getUntrackedFiles(stagingArea.stageMap().keySet(),
+                stagingArea.removeFiles(), currCommit.commitMapping().keySet());
+
+        if (!untracked.isEmpty()) {
+            exitWithError("There is an untracked file in the way; "
+                    + "delete it, or add and commit it first.");
+        }
+
+        stagingArea.clearStagingArea();
+        stagingArea.writeToStage();
     }
 }
