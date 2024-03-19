@@ -118,10 +118,10 @@ public class Repository {
     public static String logHistory() {
         Commit next = Branch.readRecentCommit(Head.getHeadState());
         StringBuilder log = new StringBuilder();
-        while (next != null) {
+        do {
             log.append(next.toString()).append("\n");
             next = Commit.readCommit(next.parentCommit());
-        }
+        } while (next != null);
         return log.toString();
     }
 
