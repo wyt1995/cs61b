@@ -537,5 +537,10 @@ public class Repository {
         Commit prevCommit = Commit.readCommit(commitID);
         overwriteAllFiles(prevCommit);
         deleteTrackedFiles(prevCommit);
+
+        Branch currBranch = Branch.readCurrentBranch(Head.getHeadState());
+        currBranch.getCommits().remove(commitID);
+        currBranch.addCommit(commitID);
+        currBranch.saveBranch();
     }
 }

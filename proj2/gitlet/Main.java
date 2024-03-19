@@ -88,6 +88,7 @@ public class Main {
                 // handle the `reset [commit id]` command
                 validateGitInit();
                 validateArgc(args, 2);
+                resetHard(args[1]);
                 break;
             default:
                 validateGitInit();
