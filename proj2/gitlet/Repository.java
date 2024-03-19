@@ -6,11 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static gitlet.Utils.*;
-import static java.util.Collections.sort;
 
 
 /**
@@ -76,8 +74,8 @@ public class Repository {
     }
 
     /**
-     * Create a new commit by saving a snapshot of tracked files in the recent commit and staging area.
-     * A commit only updates the contents of files it is tracking that have been staged for addition;
+     * Create a new commit by saving a snapshot of tracked files in recent commit and staging area.
+     * A commit only updates the content of files it is tracking that have been staged for addition;
      * otherwise, it keeps the versions of files in its parent commit.
      * If a file is staged for removal, it will be untracked in the new commit.
      * @param message the commit message described by the user.
@@ -376,9 +374,14 @@ public class Repository {
     private static List<String> getUntrackedFiles(Set<String> added, Set<String> removed,
                                                   Set<String> tracked) {
         List<String> workingFiles = allWorkingFiles();
-        workingFiles.removeIf(fileName -> added.contains(fileName) || tracked.contains(fileName)
-                                       || removed.contains(fileName));
-        return workingFiles;
+        List<String> untracked = new ArrayList<>();
+        for (String fileName : workingFiles) {
+            if (!added.contains(fileName) && !removed.contains(fileName)
+                    && !tracked.contains(fileName)) {
+                untracked.add(fileName);
+            }
+        }
+        return untracked;
     }
 
     /**
@@ -391,8 +394,8 @@ public class Repository {
         List<String> workingFiles = allWorkingFiles();
         for (String filename : workingFiles) {
             if (!savedFiles.contains(filename)) {
-                exitWithError("There is an untracked file in the way; " +
-                        "delete it, or add and commit it first.");
+                exitWithError("There is an untracked file in the way; "
+                        + "delete it, or add and commit it first.");
             }
         }
     }

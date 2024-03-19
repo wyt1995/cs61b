@@ -102,6 +102,6 @@ public class Branch implements Serializable {
      */
     public static List<String> getAllBranches() {
         List<String> allBranches = plainFilenamesIn(Branch.BRANCH_DIR);
-        return allBranches == null? new ArrayList<>() : Collections.unmodifiableList(allBranches);
+        return allBranches == null ? new ArrayList<>() : Collections.unmodifiableList(allBranches);
     }
 }
