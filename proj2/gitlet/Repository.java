@@ -3,10 +3,12 @@ package gitlet;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static gitlet.Utils.*;
 
@@ -116,12 +118,44 @@ public class Repository {
         StringBuilder logs = new StringBuilder();
         for (String commitID : commitHistory) {
             Commit next = Commit.readCommit(commitID);
-            logs.append("===\n");
-            logs.append("commit ").append(commitID).append("\n");
-            logs.append("Date: ").append(next.commitTime()).append("\n");
-            logs.append(next.commitMessage()).append("\n").append("\n");
+            logs.append(commitLog(next));
         }
         return logs.toString();
+    }
+
+    /**
+     * @return a string representation of all commits that have been made in the order of time.
+     */
+    public static String globalLog() {
+        List<String> allBranches = Branch.getAllBranches();
+        List<Commit> allCommits = new ArrayList<>();
+        for (String branch : allBranches) {
+            List<String> commitsInBranch = Branch.readCurrentBranch(branch).getCommits();
+            allCommits.addAll(commitsInBranch.stream()
+                                             .map(Commit::readCommit)
+                                             .collect(Collectors.toList()));
+        }
+        allCommits.sort(Comparator.comparing(Commit::timestamp));
+
+        StringBuilder logs = new StringBuilder();
+        for (Commit next : allCommits) {
+            logs.append(commitLog(next));
+        }
+        return logs.toString();
+    }
+
+    /**
+     * Build a formatted commit information.
+     * @param next the commit to be read.
+     * @return a StringBuilder.
+     */
+    private static StringBuilder commitLog(Commit next) {
+        StringBuilder log = new StringBuilder();
+        log.append("===\n");
+        log.append("commit ").append(next.hashValue()).append("\n");
+        log.append("Date: ").append(next.commitTime()).append("\n");
+        log.append(next.commitMessage()).append("\n").append("\n");
+        return log;
     }
 
     /**
@@ -404,18 +438,20 @@ public class Repository {
      * the most recent commit in the current branch, exit with an error message.
      */
     private static void checkUntrackedFiles() {
+        // staging area should be clear
         Stage stagingArea = new Stage();
         Map<String, String> stagedMap = stagingArea.stageMap();
         Set<String> stagedFiles = stagedMap.keySet();
         Set<String> removedFiles = stagingArea.removeFiles();
 
+        // no untracked modifications or files; reuse code from the `status` command
         Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
         Map<String, String> commitMap = currCommit.commitMapping();
         List<String> modified = modifiedFiles(stagedMap, removedFiles, commitMap);
         List<String> untracked = getUntrackedFiles(stagedFiles, removedFiles, commitMap.keySet());
 
-        if (!stagedFiles.isEmpty() || !removedFiles.isEmpty() ||
-               !modified.isEmpty() || !untracked.isEmpty()) {
+        if (!stagedFiles.isEmpty() || !removedFiles.isEmpty()
+            || !modified.isEmpty() || !untracked.isEmpty()) {
             exitWithError("There is an untracked file in the way; "
                     + "delete it, or add and commit it first.");
         }

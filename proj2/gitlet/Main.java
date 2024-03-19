@@ -49,6 +49,11 @@ public class Main {
                 validateArgc(args, 1);
                 System.out.println(logHistory());
                 break;
+            case "global-log":
+                validateGitInit();
+                validateArgc(args, 1);
+                System.out.println(globalLog());
+                break;
             case "checkout":
                 // handle the `checkout [file name/commit id/branch name]` command
                 validateGitInit();

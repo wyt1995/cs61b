@@ -75,6 +75,13 @@ public class Commit implements Serializable {
     }
 
     /**
+     * @return the datetime of this commit.
+     */
+    public Date timestamp() {
+        return this.timestamp;
+    }
+
+    /**
      * @return a formatted timestamp of this commit.
      */
     public String commitTime() {
