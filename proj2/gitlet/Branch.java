@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,5 +95,13 @@ public class Branch implements Serializable {
     protected void saveBranch() {
         File branchFile = join(BRANCH_DIR, this.name);
         writeObject(branchFile, this);
+    }
+
+    /**
+     * @return a list of all active branches and null pointer safe.
+     */
+    public static List<String> getAllBranches() {
+        List<String> allBranches = plainFilenamesIn(Branch.BRANCH_DIR);
+        return allBranches == null? new ArrayList<>() : Collections.unmodifiableList(allBranches);
     }
 }
