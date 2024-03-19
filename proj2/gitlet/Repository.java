@@ -229,7 +229,7 @@ public class Repository {
      */
     private static void checkoutFromCommit(String commitID, String filename) {
         Commit prevCommit = Commit.readCommit(commitID);
-        overwriteFile(filename, prevCommit);
+        overwriteFromFile(filename, prevCommit);
     }
 
     /**
