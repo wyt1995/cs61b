@@ -217,7 +217,7 @@ public class Repository {
      */
     private static void checkoutFromHead(String filename) {
         Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
-        overwriteFile(filename, currCommit);
+        overwriteFromFile(filename, currCommit);
     }
 
     /**
@@ -261,23 +261,13 @@ public class Repository {
     }
 
     /**
-     * Overwrite the current file version with a previous commit.
+     * Create or overwrite file based on the version from a previous commit.
      */
-    private static void overwriteFile(String filename, Commit prevCommit) {
-        File currVersion = findFile(filename);
+    private static void overwriteFromFile(String filename, Commit prevCommit) {
         String blobID = prevCommit.commitMapping().get(filename);
         if (blobID == null) {
             exitWithError("File does not exist in that commit.");
         }
-        byte[] saveVersion = Blob.readBlob(blobID);
-        writeContents(currVersion, (Object) saveVersion);
-    }
-
-    /**
-     * Create or overwrite file based on a previous commit.
-     */
-    private static void overwriteFromFile(String filename, Commit prevCommit) {
-        String blobID = prevCommit.commitMapping().get(filename);
         byte[] savedVersion = Blob.readBlob(blobID);
         writeContents(createFile(filename), (Object) savedVersion);
     }
