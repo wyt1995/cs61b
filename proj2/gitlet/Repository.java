@@ -354,7 +354,7 @@ public class Repository {
     public static void removeBranch(String branchName) {
         validateRmBranchExists(branchName);
         validateRmCurrentBranch(branchName);
-        restrictedDelete(join(Branch.BRANCH_DIR, branchName));
+        join(Branch.BRANCH_DIR, branchName).delete();
     }
 
     /**
@@ -518,6 +518,9 @@ public class Repository {
                               .stream()
                               .filter(id -> Commit.readCommit(id).commitMessage().equals(commitMsg))
                               .collect(Collectors.toList());
+        if (commitIDs.isEmpty()) {
+            exitWithError("Found no commit with that message.");
+        }
         return String.join("\n", commitIDs);
     }
 
