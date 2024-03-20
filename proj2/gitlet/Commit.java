@@ -61,7 +61,7 @@ public class Commit implements Serializable {
     }
 
     /**
-     * Constructor for the merge command.
+     * Constructor for merging two branches where a commit can have two parents.
      * @param message the commit message as specified in the command line argument.
      * @param parent the reference to the parent commit.
      *               All commit must have a parent except for the initial commit.
@@ -177,6 +177,12 @@ public class Commit implements Serializable {
         return readObject(commitInfo, Commit.class);
     }
 
+    /**
+     * Support abbreviated commit ID lookup.
+     * @param abbrev the shortened ID with fewer than 40 characters.
+     * @return the complete 40-character hexadecimal hash value. If there is no commit ID fits
+ *             the abbreviation, return an empty string.
+     */
     public static String findPrefix(String abbrev) {
         List<String> commitWithPrefix = readAllCommits().stream()
                                .filter(c -> c.startsWith(abbrev)).collect(Collectors.toList());

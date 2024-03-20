@@ -64,6 +64,15 @@ public class Branch implements Serializable {
     }
 
     /**
+     * Add all previous commits in the parent branch to this one.
+     * Used when creating a new branch.
+     * @param prevCommits a list of commit hash IDs.
+     */
+    public void addPrevCommits(List<String> prevCommits) {
+        commits.addAll(prevCommits);
+    }
+
+    /**
      * Read the most recent commit from saved branch files.
      * @param currBranch the current working branch.
      */

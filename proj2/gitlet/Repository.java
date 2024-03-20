@@ -115,14 +115,14 @@ public class Repository {
      * @return a string representation of this branch's commit history.
      */
     public static String logHistory() {
-        String next = Branch.readCurrentBranch(Head.getHeadState()).getRecentCommit();
-        StringBuilder log = new StringBuilder();
-        while (!next.isEmpty()) {
-            Commit commit = Commit.readCommit(next);
-            log.append(commit.toString()).append("\n");
-            next = commit.parentCommit();
+        Branch currentBranch = Branch.readCurrentBranch(Head.getHeadState());
+        List<String> commitHistory = currentBranch.getCommits();
+        StringBuilder logs = new StringBuilder();
+        for (String commitID : commitHistory) {
+            Commit next = Commit.readCommit(commitID);
+            logs.append(next.toString()).append("\n");
         }
-        return log.toString();
+        return logs.toString();
     }
 
     /**
@@ -308,8 +308,8 @@ public class Repository {
     public static void createBranch(String branchName) {
         validateNewBranch(branchName);
         Branch diverged = new Branch(branchName);
-        Commit currentCommit = Branch.readRecentCommit(Head.getHeadState());
-        diverged.addCommit(currentCommit.hashValue());
+        Branch current = Branch.readCurrentBranch(Head.getHeadState());
+        diverged.addPrevCommits(current.getCommits());
         diverged.saveBranch();
     }
 
@@ -535,4 +535,17 @@ public class Repository {
         stagingArea.clearStagingArea();
         stagingArea.writeToStage();
     }
+
+    /**
+     * Merge files from the given branch into the current branch.
+     */
+    public static void merge(String branchName) {
+        String headBranch = Head.getHeadState();
+        Branch current = Branch.readCurrentBranch(headBranch);
+        Branch merging = Branch.readCurrentBranch(branchName);
+    }
+//
+//    private static Commit findSplitPoint(Branch b1, Branch b2) {
+//
+//    }
 }
