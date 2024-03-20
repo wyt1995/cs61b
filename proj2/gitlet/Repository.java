@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -546,18 +547,18 @@ public class Repository {
         String splitID = findSplitPoint(current, merging);
         checkBeforeMerge(branchName, splitID, current, merging);
 
-        Stage stagingArea = new Stage();
         Commit currentCommit = Branch.readRecentCommit(current);
         Commit mergingCommit = Branch.readRecentCommit(merging);
-        Map<String, String> currentFiles = Branch.readRecentCommit(current).commitMapping();
+        Map<String, String> currentFiles = currentCommit.commitMapping();
         Map<String, String> mergingFiles = mergingCommit.commitMapping();
         Map<String, String> splitPoint = Commit.readCommit(splitID).commitMapping();
 
+        Stage stagingArea = new Stage();
         for (String file : mergingFiles.keySet()) {
             // files that are modified in the given branch since the split point,
             // but not modified in the current branch, should be changed to the previous version
-            if (!mergingFiles.get(file).equals(splitPoint.get(file))
-                && splitPoint.get(file).equals(currentFiles.get(file))) {
+            if ( ! Objects.equals(mergingFiles.get(file), splitPoint.get(file))
+                && Objects.equals(currentFiles.get(file), splitPoint.get(file))) {
                 overwriteFromFile(file, mergingCommit);
                 stagingArea.addToStagingArea(file);
             }
@@ -573,7 +574,7 @@ public class Repository {
         for (String file : splitPoint.keySet()) {
             // files present at the split point, unmodified in the current branch,
             // but absent in the given branch, should be removed and untracked.
-            if (splitPoint.get(file).equals(currentFiles.get(file))
+            if (Objects.equals(currentFiles.get(file), splitPoint.get(file))
                     && !mergingFiles.containsKey(file)) {
                 restrictedDelete(file);
                 stagingArea.removeFromStagingArea(file);
