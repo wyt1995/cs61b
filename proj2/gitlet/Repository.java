@@ -604,7 +604,7 @@ public class Repository {
      * Check various error cases before merge.
      */
     private static void checkBeforeMerge(String currBranchName, String branchName) {
-        validateRmBranchExists(currBranchName);
+        validateRmBranchExists(branchName);
         if (currBranchName.equals(branchName)) {
             exitWithError("Cannot merge a branch with itself.");
         }
