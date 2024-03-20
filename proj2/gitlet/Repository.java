@@ -339,7 +339,7 @@ public class Repository {
      * but do not delete all commits that were created under the branch.
      */
     public static void removeBranch(String branchName) {
-        validateRmBranchExists(branchName);
+        validateBranchExistsV2(branchName);
         validateRmCurrentBranch(branchName);
         join(Branch.BRANCH_DIR, branchName).delete();
     }
@@ -368,7 +368,7 @@ public class Repository {
     /**
      * Exit with error message if user trying to remove a branch that does not exist.
      */
-    private static void validateRmBranchExists(String branchName) {
+    private static void validateBranchExistsV2(String branchName) {
         List<String> allBranches = Branch.getAllBranches();
         if (!allBranches.contains(branchName)) {
             exitWithError("A branch with that name does not exist.");
@@ -554,33 +554,51 @@ public class Repository {
         Map<String, String> currentFiles = currentCommit.commitMapping();
         Map<String, String> mergingFiles = mergingCommit.commitMapping();
         Map<String, String> splitPoint = Commit.readCommit(splitID).commitMapping();
+        Set<String> conflictFiles = new HashSet<>();
 
         Stage stagingArea = new Stage();
-        for (String file : mergingFiles.keySet()) {
-            // files that are modified in the given branch since the split point,
-            // but not modified in the current branch, should be changed to the modified version
-            if (!Objects.equals(mergingFiles.get(file), splitPoint.get(file))
-                && Objects.equals(currentFiles.get(file), splitPoint.get(file))) {
-                overwriteFromFile(file, mergingCommit);
-                stagingArea.addToStagingArea(file);
+        for (String file : splitPoint.keySet()) {
+            String earliest = splitPoint.get(file);
+            String mergingVersion = mergingFiles.get(file);
+            String workingVersion = currentFiles.get(file);
+
+            if (mergingVersion == null) {
+                if (earliest.equals(workingVersion)) {
+                    restrictedDelete(file);
+                    stagingArea.removeFromStagingArea(file);
+                } else if (workingVersion != null) {
+                    conflictFiles.add(file);
+                }
             }
 
-            // files that are not present at the split point but present only in the given branch,
-            // should be checked out and staged
-            if (!splitPoint.containsKey(file) && !currentFiles.containsKey(file)) {
-                checkoutFromCommit(mergingCommit.hashValue(), file);
-                stagingArea.addToStagingArea(file);
+            else if (!earliest.equals(mergingVersion)) {
+                if (earliest.equals(workingVersion)) {
+                    overwriteFromFile(file, mergingCommit);
+                    stagingArea.addToStagingArea(file);
+                } else if (!mergingVersion.equals(workingVersion)) {
+                    conflictFiles.add(file);
+                }
             }
         }
 
-        for (String file : splitPoint.keySet()) {
-            // files present at the split point, unmodified in the current branch,
-            // but absent in the given branch, should be removed and untracked.
-            if (Objects.equals(currentFiles.get(file), splitPoint.get(file))
-                    && !mergingFiles.containsKey(file)) {
-                restrictedDelete(file);
-                stagingArea.removeFromStagingArea(file);
+        for (String file : mergingFiles.keySet()) {
+            String mergingVersion = mergingFiles.get(file);
+            String workingVersion = currentFiles.get(file);
+
+            // only considers files that are not present at the split point
+            if (!splitPoint.containsKey(file)) {
+                if (workingVersion == null) {
+                    overwriteFromFile(file, mergingCommit);
+                    stagingArea.addToStagingArea(file);
+                } else if (!workingVersion.equals(mergingVersion)) {
+                    conflictFiles.add(file);
+                }
             }
+        }
+
+        if (!conflictFiles.isEmpty()) {
+            resolveMergeConflict(conflictFiles, stagingArea, currentFiles, mergingFiles);
+            message("Encountered a merge conflict.");
         }
 
         String message = String.format("Merged %s into %s.", branchName, headBranch);
@@ -588,6 +606,12 @@ public class Repository {
         merged.saveCommit();
         current.addCommit(merged.hashValue());
         current.saveBranch();
+    }
+
+    private static void resolveMergeConflict(Set<String> conflictFiles, Stage stagingArea,
+                                             Map<String, String> currentFiles,
+                                             Map<String, String> mergingFiles) {
+        return;
     }
 
     /**
@@ -611,7 +635,7 @@ public class Repository {
      */
     private static void checkBeforeMerge(String currBranchName, String branchName) {
         // check the given branch exists
-        validateRmBranchExists(branchName);
+        validateBranchExistsV2(branchName);
 
         // can only merge two different branches
         if (currBranchName.equals(branchName)) {
