@@ -545,7 +545,7 @@ public class Repository {
         Branch current = Branch.readCurrentBranch(headBranch);
         Branch merging = Branch.readCurrentBranch(branchName);
         String splitID = findSplitPoint(current, merging);
-        checkBeforeMerge(branchName, splitID, current, merging);
+        checkBeforeMerge(headBranch, branchName, splitID, current, merging);
 
         Commit currentCommit = Branch.readRecentCommit(current);
         Commit mergingCommit = Branch.readRecentCommit(merging);
@@ -581,7 +581,7 @@ public class Repository {
             }
         }
 
-        String message = String.format("Merged %s into %s", branchName, headBranch);
+        String message = String.format("Merged %s into %s.", branchName, headBranch);
         Commit merged = new Commit(message, currentCommit, mergingCommit);
         merged.saveCommit();
         current.addCommit(merged.hashValue());
@@ -599,8 +599,22 @@ public class Repository {
         return "";
     }
 
-    private static void checkBeforeMerge(String branchName, String splitID,
+    /**
+     * Check various error cases before merge.
+     */
+    private static void checkBeforeMerge(String currBranchName, String branchName, String splitID,
                                          Branch current, Branch given) {
+        validateRmBranchExists(currBranchName);
+        if (currBranchName.equals(branchName)) {
+            exitWithError("Cannot merge a branch with itself.");
+        }
+
+        Stage stagingArea = new Stage();
+        if (!stagingArea.stageMap().isEmpty() || !stagingArea.removeFiles().isEmpty()) {
+            exitWithError("You have uncommitted changes.");
+        }
+        checkFilesBeforeReset();
+
         String givenCommit = given.getRecentCommit();
         String currCommit = current.getRecentCommit();
         if (splitID.equals(givenCommit)) {
