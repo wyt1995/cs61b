@@ -542,10 +542,11 @@ public class Repository {
      */
     public static void merge(String branchName) {
         String headBranch = Head.getHeadState();
+        checkBeforeMerge(headBranch, branchName);
         Branch current = Branch.readCurrentBranch(headBranch);
         Branch merging = Branch.readCurrentBranch(branchName);
         String splitID = findSplitPoint(current, merging);
-        checkBeforeMerge(headBranch, branchName, splitID, current, merging);
+        checkSplitBeforeMerge(branchName, splitID, current, merging);
 
         Commit currentCommit = Branch.readRecentCommit(current);
         Commit mergingCommit = Branch.readRecentCommit(merging);
@@ -602,8 +603,7 @@ public class Repository {
     /**
      * Check various error cases before merge.
      */
-    private static void checkBeforeMerge(String currBranchName, String branchName, String splitID,
-                                         Branch current, Branch given) {
+    private static void checkBeforeMerge(String currBranchName, String branchName) {
         validateRmBranchExists(currBranchName);
         if (currBranchName.equals(branchName)) {
             exitWithError("Cannot merge a branch with itself.");
@@ -614,7 +614,10 @@ public class Repository {
             exitWithError("You have uncommitted changes.");
         }
         checkFilesBeforeReset();
+    }
 
+    private static void checkSplitBeforeMerge(String branchName, String splitID,
+                                              Branch current, Branch given) {
         String givenCommit = given.getRecentCommit();
         String currCommit = current.getRecentCommit();
         if (splitID.equals(givenCommit)) {
