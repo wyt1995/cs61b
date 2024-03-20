@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 
 import static gitlet.Utils.*;
 
-
 /**
  * Represents a gitlet repository.
  * Handles commands that interact with the working directory.
