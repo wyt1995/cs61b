@@ -60,6 +60,7 @@ public class Branch implements Serializable {
      * @param recentCommit a commit represented by its SHA-1 value.
      */
     public void addCommit(String recentCommit) {
+        commits.remove(recentCommit);
         commits.add(0, recentCommit);
     }
 
