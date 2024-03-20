@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -597,7 +596,7 @@ public class Repository {
         }
 
         if (!conflictFiles.isEmpty()) {
-            resolveMergeConflict(conflictFiles, stagingArea, currentFiles, mergingFiles);
+            resolveMergeConflict(conflictFiles, currentFiles, mergingFiles, stagingArea);
             message("Encountered a merge conflict.");
         }
 
@@ -608,10 +607,30 @@ public class Repository {
         current.saveBranch();
     }
 
-    private static void resolveMergeConflict(Set<String> conflictFiles, Stage stagingArea,
-                                             Map<String, String> currentFiles,
-                                             Map<String, String> mergingFiles) {
-        return;
+    /**
+     * In the case of merge conflict, replace the contents of the conflicted file with
+     * the difference between two versions.
+     * @param conflicts the set of file names that are in conflict.
+     * @param currFiles the map of file names to blobs in the current branch.
+     * @param mergingFiles the map of file names to blobs in the given branch.
+     * @param stagingArea the active staging area.
+     */
+    private static void resolveMergeConflict(Set<String> conflicts, Map<String, String> currFiles,
+                                             Map<String, String> mergingFiles, Stage stagingArea) {
+        for (String file : conflicts) {
+            String currBlobId = currFiles.get(file);
+            String mergeBlobID = mergingFiles.get(file);
+
+            StringBuilder newContent = new StringBuilder();
+            newContent.append("<<<<<<< HEAD\n");
+            newContent.append(Blob.readBlobAsString(currBlobId));
+            newContent.append("=======\n");
+            newContent.append(Blob.readBlobAsString(mergeBlobID));
+            newContent.append(">>>>>>>\n");
+            writeContents(createFile(file), newContent.toString());
+
+            stagingArea.addToStagingArea(file);
+        }
     }
 
     /**
