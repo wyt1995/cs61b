@@ -556,8 +556,8 @@ public class Repository {
         Stage stagingArea = new Stage();
         for (String file : mergingFiles.keySet()) {
             // files that are modified in the given branch since the split point,
-            // but not modified in the current branch, should be changed to the previous version
-            if ( ! Objects.equals(mergingFiles.get(file), splitPoint.get(file))
+            // but not modified in the current branch, should be changed to the modified version
+            if (!Objects.equals(mergingFiles.get(file), splitPoint.get(file))
                 && Objects.equals(currentFiles.get(file), splitPoint.get(file))) {
                 overwriteFromFile(file, mergingCommit);
                 stagingArea.addToStagingArea(file);
@@ -566,7 +566,7 @@ public class Repository {
             // files that are not present at the split point but present only in the given branch,
             // should be checked out and staged
             if (!splitPoint.containsKey(file) && !currentFiles.containsKey(file)) {
-                checkoutFromCommit(splitID, file);
+                checkoutFromCommit(mergingCommit.hashValue(), file);
                 stagingArea.addToStagingArea(file);
             }
         }
