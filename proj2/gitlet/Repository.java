@@ -396,16 +396,6 @@ public class Repository {
     }
 
     /**
-     * Exit with an error message if the given commit hash value does not exist.
-     */
-    private static void validateCommitExists(String commitID) {
-        List<String> allCommits = Commit.readAllCommits();
-        if (!allCommits.contains(commitID)) {
-            exitWithError("No commit with that id exists.");
-        }
-    }
-
-    /**
      * A file in the working directory is “modified but not staged” if it is
      *   - tracked in the current commit, changed in the working directory, but not staged; or
      *   - staged for addition, but with different contents than in the working directory; or
@@ -518,10 +508,9 @@ public class Repository {
      * @param commitID the SHA-1 value of a previous commit.
      */
     public static void resetHard(String commitID) {
-        validateCommitExists(commitID);
+        Commit prevCommit = Commit.readCommit(commitID);
         checkFilesBeforeReset();
 
-        Commit prevCommit = Commit.readCommit(commitID);
         overwriteAllFiles(prevCommit);
         deleteTrackedFiles(prevCommit);
 

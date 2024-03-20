@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static gitlet.Repository.GITLET_DIR;
 import static gitlet.Utils.*;
@@ -166,11 +167,20 @@ public class Commit implements Serializable {
      * @return the Commit instance.
      */
     public static Commit readCommit(String commitID) {
+        if (commitID.length() < 40) {
+            commitID = findPrefix(commitID);
+        }
         File commitInfo = join(COMMIT_DIR, commitID);
         if (!commitInfo.exists()) {
             exitWithError("No commit with that id exists.");
         }
         return readObject(commitInfo, Commit.class);
+    }
+
+    public static String findPrefix(String abbrev) {
+        List<String> commitWithPrefix = readAllCommits().stream()
+                               .filter(c -> c.startsWith(abbrev)).collect(Collectors.toList());
+        return commitWithPrefix.isEmpty() ? "" : commitWithPrefix.get(0);
     }
 
     /**
