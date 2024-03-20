@@ -90,6 +90,12 @@ public class Main {
                 validateArgc(args, 2);
                 resetHard(args[1]);
                 break;
+            case "merge":
+                // handle the `merge [branch name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                merge(args[1]);
+                break;
             default:
                 validateGitInit();
                 exitWithError("No command with that name exists.");

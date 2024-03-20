@@ -115,14 +115,14 @@ public class Repository {
      * @return a string representation of this branch's commit history.
      */
     public static String logHistory() {
-        Branch currentBranch = Branch.readCurrentBranch(Head.getHeadState());
-        List<String> commitHistory = currentBranch.getCommits();
-        StringBuilder logs = new StringBuilder();
-        for (String commitID : new LinkedHashSet<>(commitHistory)) {
-            Commit next = Commit.readCommit(commitID);
-            logs.append(next.toString()).append("\n");
+        String next = Branch.readCurrentBranch(Head.getHeadState()).getRecentCommit();
+        StringBuilder log = new StringBuilder();
+        while (!next.isEmpty()) {
+            Commit commit = Commit.readCommit(next);
+            log.append(commit.toString()).append("\n");
+            next = commit.parentCommit();
         }
-        return logs.toString();
+        return log.toString();
     }
 
     /**
@@ -543,9 +543,71 @@ public class Repository {
         String headBranch = Head.getHeadState();
         Branch current = Branch.readCurrentBranch(headBranch);
         Branch merging = Branch.readCurrentBranch(branchName);
+        String splitID = findSplitPoint(current, merging);
+        checkBeforeMerge(branchName, splitID, current, merging);
+
+        Stage stagingArea = new Stage();
+        Commit currentCommit = Branch.readRecentCommit(current);
+        Commit mergingCommit = Branch.readRecentCommit(merging);
+        Map<String, String> currentFiles = Branch.readRecentCommit(current).commitMapping();
+        Map<String, String> mergingFiles = mergingCommit.commitMapping();
+        Map<String, String> splitPoint = Commit.readCommit(splitID).commitMapping();
+
+        for (String file : mergingFiles.keySet()) {
+            // files that are modified in the given branch since the split point,
+            // but not modified in the current branch, should be changed to the previous version
+            if (!mergingFiles.get(file).equals(splitPoint.get(file))
+                && splitPoint.get(file).equals(currentFiles.get(file))) {
+                overwriteFromFile(file, mergingCommit);
+                stagingArea.addToStagingArea(file);
+            }
+
+            // files that are not present at the split point but present only in the given branch,
+            // should be checked out and staged
+            if (!splitPoint.containsKey(file) && !currentFiles.containsKey(file)) {
+                checkoutFromCommit(splitID, file);
+                stagingArea.addToStagingArea(file);
+            }
+        }
+
+        for (String file : splitPoint.keySet()) {
+            // files present at the split point, unmodified in the current branch,
+            // but absent in the given branch, should be removed and untracked.
+            if (splitPoint.get(file).equals(currentFiles.get(file))
+                    && !mergingFiles.containsKey(file)) {
+                restrictedDelete(file);
+                stagingArea.removeFromStagingArea(file);
+            }
+        }
+
+        String message = String.format("Merged %s into %s", branchName, headBranch);
+        Commit merged = new Commit(message, currentCommit, mergingCommit);
+        merged.saveCommit();
+        current.addCommit(merged.hashValue());
+        current.saveBranch();
     }
-//
-//    private static Commit findSplitPoint(Branch b1, Branch b2) {
-//
-//    }
+
+    private static String findSplitPoint(Branch b1, Branch b2) {
+        List<String> f1 = b1.getCommits();
+        List<String> f2 = b2.getCommits();
+        for (String commit : f1) {
+            if (f2.contains(commit)) {
+                return commit;
+            }
+        }
+        return "";
+    }
+
+    private static void checkBeforeMerge(String branchName, String splitID,
+                                         Branch current, Branch given) {
+        String givenCommit = given.getRecentCommit();
+        String currCommit = current.getRecentCommit();
+        if (splitID.equals(givenCommit)) {
+            exitWithError("Given branch is an ancestor of the current branch.");
+        }
+        if (splitID.equals(currCommit)) {
+            checkoutToBranch(branchName);
+            exitWithError("Current branch fast-forwarded.");
+        }
+    }
 }
