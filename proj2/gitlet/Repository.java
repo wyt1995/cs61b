@@ -543,13 +543,14 @@ public class Repository {
     public static void merge(String branchName) {
         String headBranch = Head.getHeadState();
         checkBeforeMerge(headBranch, branchName);
+
         Branch current = Branch.readCurrentBranch(headBranch);
         Branch merging = Branch.readCurrentBranch(branchName);
-        String splitID = findSplitPoint(current, merging);
-        checkSplitBeforeMerge(branchName, splitID, current, merging);
-
         Commit currentCommit = Branch.readRecentCommit(current);
         Commit mergingCommit = Branch.readRecentCommit(merging);
+        String splitID = findSplitPoint(current, merging);
+        checkSplitBeforeMerge(currentCommit, mergingCommit, splitID);
+
         Map<String, String> currentFiles = currentCommit.commitMapping();
         Map<String, String> mergingFiles = mergingCommit.commitMapping();
         Map<String, String> splitPoint = Commit.readCommit(splitID).commitMapping();
@@ -589,6 +590,11 @@ public class Repository {
         current.saveBranch();
     }
 
+    /**
+     * Find the split point of two branches before merging them.
+     * The split point is a latest common ancestor of the current and given branch heads.
+     * @return the commit ID of the split point.
+     */
     private static String findSplitPoint(Branch b1, Branch b2) {
         List<String> f1 = b1.getCommits();
         List<String> f2 = b2.getCommits();
@@ -604,27 +610,41 @@ public class Repository {
      * Check various error cases before merge.
      */
     private static void checkBeforeMerge(String currBranchName, String branchName) {
+        // check the given branch exists
         validateRmBranchExists(branchName);
+
+        // can only merge two different branches
         if (currBranchName.equals(branchName)) {
             exitWithError("Cannot merge a branch with itself.");
         }
 
+        // staging area should be clear
         Stage stagingArea = new Stage();
         if (!stagingArea.stageMap().isEmpty() || !stagingArea.removeFiles().isEmpty()) {
             exitWithError("You have uncommitted changes.");
         }
+
+        // no untracked files in the current branch
         checkFilesBeforeReset();
     }
 
-    private static void checkSplitBeforeMerge(String branchName, String splitID,
-                                              Branch current, Branch given) {
-        String givenCommit = given.getRecentCommit();
-        String currCommit = current.getRecentCommit();
-        if (splitID.equals(givenCommit)) {
+    /**
+     * Check split point before merging the given branch to the current branch.
+     * If the split point is the same commit as the given branch, then do noting: merge is complete.
+     * If the split point is the current branch, then the effect is to check out the given branch.
+     * @param currentCommit the most recent commit in the current branch.
+     * @param mergingCommit the most recent commit in the given branch.
+     * @param splitID the hash ID of the split point of the two branches.
+     */
+    private static void checkSplitBeforeMerge(Commit currentCommit, Commit mergingCommit,
+                                              String splitID) {
+        if (splitID.equals(mergingCommit.hashValue())) {
             exitWithError("Given branch is an ancestor of the current branch.");
         }
-        if (splitID.equals(currCommit)) {
-            checkoutToBranch(branchName);
+
+        if (splitID.equals(currentCommit.hashValue())) {
+            overwriteAllFiles(mergingCommit);
+            deleteTrackedFiles(mergingCommit);
             exitWithError("Current branch fast-forwarded.");
         }
     }
