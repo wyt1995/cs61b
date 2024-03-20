@@ -118,7 +118,7 @@ public class Repository {
         Branch currentBranch = Branch.readCurrentBranch(Head.getHeadState());
         List<String> commitHistory = currentBranch.getCommits();
         StringBuilder logs = new StringBuilder();
-        for (String commitID : commitHistory) {
+        for (String commitID : new LinkedHashSet<>(commitHistory)) {
             Commit next = Commit.readCommit(commitID);
             logs.append(next.toString()).append("\n");
         }
