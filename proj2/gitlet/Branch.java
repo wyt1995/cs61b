@@ -129,7 +129,7 @@ public class Branch implements Serializable {
     }
 
     /**
-     * @return the file representing a remote server reachable by path.
+     * @return the file representing the branch folder in the remote server reachable by path.
      */
     public static File remoteDirectory(String path) {
         return join(path, "branches");
