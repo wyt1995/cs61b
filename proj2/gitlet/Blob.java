@@ -64,6 +64,10 @@ public class Blob implements Serializable {
      * @param blobID the file name (SHA-1) of the blob.
      */
     public static String readBlobAsString(String blobID) {
-        return readContentsAsString(join(OBJECT_DIR, blobID));
+        File blobFile = join(OBJECT_DIR, blobID);
+        if (!blobFile.exists()) {
+            return "";
+        }
+        return readContentsAsString(blobFile);
     }
 }

@@ -561,6 +561,7 @@ public class Repository {
             String mergingVersion = mergingFiles.get(file);
             String workingVersion = currentFiles.get(file);
 
+            // if the file was deleted in the given branch
             if (mergingVersion == null) {
                 if (earliest.equals(workingVersion)) {
                     restrictedDelete(file);
@@ -570,6 +571,8 @@ public class Repository {
                 }
             }
 
+            // if the file is present in the given branch, only needs to consider the case when
+            // it was modified. Otherwise, keep the version in the current branch and do nothing.
             else if (!earliest.equals(mergingVersion)) {
                 if (earliest.equals(workingVersion)) {
                     overwriteFromFile(file, mergingCommit);
