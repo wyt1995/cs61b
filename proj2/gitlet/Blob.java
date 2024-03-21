@@ -66,4 +66,18 @@ public class Blob implements Serializable {
     public static String readBlobAsString(String blobID) {
         return readContentsAsString(join(OBJECT_DIR, blobID));
     }
+
+    /**
+     * @return true if the given blob already exists, false otherwise.
+     */
+    public static boolean checkBlobExists(String blobID) {
+        return join(OBJECT_DIR, blobID).exists();
+    }
+
+    /**
+     * Find the blob object with its ID in the remote machine.
+     */
+    public static File findRemoteBlob(String path, String blobID) {
+        return join(path, "objects", blobID);
+    }
 }

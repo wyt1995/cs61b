@@ -96,6 +96,36 @@ public class Main {
                 validateArgc(args, 2);
                 merge(args[1]);
                 break;
+            case "add-remote":
+                // handle the `add-remote [remote name] [name of remote directory]/.gitlet` command
+                validateGitInit();
+                validateArgc(args, 3);
+                Remote.addRemote(args[1], args[2]);
+                break;
+            case "rm-remote":
+                // handle the `rm-remote [remote name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                Remote.removeRemote(args[1]);
+                break;
+            case "push":
+                // handle the `push [remote name] [remote branch name]` command
+                validateGitInit();
+                validateArgc(args, 3);
+                Remote.push(args[1], args[2]);
+                break;
+            case "fetch":
+                // handle the `fetch [remote name] [remote branch name]` command
+                validateGitInit();
+                validateArgc(args, 3);
+                Remote.fetch(args[1], args[2]);
+                break;
+            case "pull":
+                // handle the `pull [remote name] [remote branch name]` command
+                validateGitInit();
+                validateArgc(args, 3);
+                Remote.pull(args[1], args[2]);
+                break;
             default:
                 validateGitInit();
                 exitWithError("No command with that name exists.");

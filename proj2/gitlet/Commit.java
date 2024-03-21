@@ -217,4 +217,18 @@ public class Commit implements Serializable {
                + "Date: " + this.commitTime() + "\n"
                + this.commitMessage() + "\n";
     }
+
+    /**
+     *@return the file representing the commit directory in a remote server reachable by path.
+     */
+    public static File remoteCommitDir(String path) {
+        return join(path, "logs");
+    }
+
+    /**
+     * @return the Commit instance in the remote machine.
+     */
+    public static Commit readRemoteCommit(String path, String commitID) {
+        return readObject(join(remoteCommitDir(path), commitID), Commit.class);
+    }
 }

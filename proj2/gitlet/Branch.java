@@ -25,7 +25,7 @@ public class Branch implements Serializable {
      * @param name the name of the branch.
      */
     public Branch(String name) {
-        this.name = name;
+        this.name = changeName(name);
         this.commits = new LinkedList<>();
         if (join(BRANCH_DIR, this.name).exists()) {
             Branch currBranch = readCurrentBranch(this.name);
@@ -38,6 +38,13 @@ public class Branch implements Serializable {
      */
     public String branchName() {
         return name;
+    }
+
+    /**
+     * Replace `/` in any branch name. Only necessary because of the specification.
+     */
+    private static String changeName(String name) {
+        return name.replace("/", "__");
     }
 
     /**
@@ -86,7 +93,7 @@ public class Branch implements Serializable {
      * @param branchName the name of the current working branch.
      */
     public static Commit readRecentCommit(String branchName) {
-        Branch currBranch = readCurrentBranch(branchName);
+        Branch currBranch = readCurrentBranch(changeName(branchName));
         return readRecentCommit(currBranch);
     }
 
@@ -94,7 +101,7 @@ public class Branch implements Serializable {
      * Read the current branch from a saved file.
      */
     public static Branch readCurrentBranch(String branchName) {
-        File branchFile = join(BRANCH_DIR, branchName);
+        File branchFile = join(BRANCH_DIR, changeName(branchName));
         return readObject(branchFile, Branch.class);
     }
 
@@ -111,6 +118,44 @@ public class Branch implements Serializable {
      */
     public static List<String> getAllBranches() {
         List<String> allBranches = plainFilenamesIn(Branch.BRANCH_DIR);
+        return allBranches == null ? new ArrayList<>() : Collections.unmodifiableList(allBranches);
+    }
+
+    /**
+     * @return true if the given branch name already exists, false otherwise.
+     */
+    public static boolean checkBranchExists(String branchName) {
+        return getAllBranches().contains(changeName(branchName));
+    }
+
+    /**
+     * @return the file representing a remote server reachable by path.
+     */
+    public static File remoteDirectory(String path) {
+        return join(path, "branches");
+    }
+
+    /**
+     * @return the specified branch in the remote machine.
+     */
+    public static Branch remoteCurrentBranch(String path, String branchName) {
+        File remoteBranch = join(remoteDirectory(path), changeName(branchName));
+        return readObject(remoteBranch, Branch.class);
+    }
+
+    /**
+     * Save the given branch information to a file with its NAME as filename.
+     */
+    public static void saveRemoteBranch(String path, Branch local) {
+        File branchFile = join(remoteDirectory(path), local.branchName());
+        writeObject(branchFile, local);
+    }
+
+    /**
+     * @return a list of branch names that are active in the remote server.
+     */
+    public static List<String> allRemoteBranches(String path) {
+        List<String> allBranches = plainFilenamesIn(remoteDirectory(path));
         return allBranches == null ? new ArrayList<>() : Collections.unmodifiableList(allBranches);
     }
 }
