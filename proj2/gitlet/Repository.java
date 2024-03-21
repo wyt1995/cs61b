@@ -351,8 +351,7 @@ public class Repository {
      * @param branchName the given name of the new branch.
      */
     private static void validateNewBranch(String branchName) {
-        List<String> allBranches = Branch.getAllBranches();
-        if (allBranches.contains(branchName)) {
+        if (Branch.checkBranchExists(branchName)) {
             exitWithError("A branch with that name already exists.");
         }
     }
@@ -361,8 +360,7 @@ public class Repository {
      * Check if the given branch name has been created before.
      */
     private static void validateBranchExists(String branchName) {
-        List<String> allBranches = Branch.getAllBranches();
-        if (!allBranches.contains(branchName)) {
+        if (!Branch.checkBranchExists(branchName)) {
             exitWithError("No such branch exists.");
         }
     }
@@ -371,8 +369,7 @@ public class Repository {
      * Exit with error message if user trying to remove a branch that does not exist.
      */
     private static void validateBranchExistsV2(String branchName) {
-        List<String> allBranches = Branch.getAllBranches();
-        if (!allBranches.contains(branchName)) {
+        if (!Branch.checkBranchExists(branchName)) {
             exitWithError("A branch with that name does not exist.");
         }
     }
