@@ -3,13 +3,14 @@ package gitlet;
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
-/** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author Yutong Wang
+/**
+ * Driver class for Gitlet, a subset of the Git version-control system.
+ * @author Yutong Wang
  */
 public class Main {
-
-    /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ... 
+    /**
+     * Usage: java gitlet.Main ARGS, where ARGS contains
+     * <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) {
         // handle empty args
@@ -48,10 +49,52 @@ public class Main {
                 validateArgc(args, 1);
                 System.out.println(logHistory());
                 break;
+            case "global-log":
+                // handle the `log` command
+                validateGitInit();
+                validateArgc(args, 1);
+                System.out.println(globalLog());
+                break;
             case "checkout":
                 // handle the `checkout [file name/commit id/branch name]` command
                 validateGitInit();
                 checkout(args);
+                break;
+            case "find":
+                // handle the `find [commit message]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                System.out.println(findCommitID(args[1]));
+                break;
+            case "status":
+                // handle the `status` command
+                validateGitInit();
+                validateArgc(args, 1);
+                System.out.println(status());
+                break;
+            case "branch":
+                // handle the `branch [branch name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                createBranch(args[1]);
+                break;
+            case "rm-branch":
+                // handle the `rm-branch [branch name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                removeBranch(args[1]);
+                break;
+            case "reset":
+                // handle the `reset [commit id]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                resetHard(args[1]);
+                break;
+            case "merge":
+                // handle the `merge [branch name]` command
+                validateGitInit();
+                validateArgc(args, 2);
+                merge(args[1]);
                 break;
             default:
                 validateGitInit();

@@ -73,10 +73,10 @@ public class Stage implements Serializable {
             addition.remove(filename);
         } else {
             addition.put(filename, fileBlob.blobHashValue()); // stage the file for addition
-            removal.remove(filename);  // no longer staged for removal
             fileBlob.saveBlob();  // save a snapshot
         }
-        // In either cases, update the stage file
+        // In either case, update the stage file
+        removal.remove(filename);  // no longer staged for removal
         writeToStage();
     }
 
@@ -91,14 +91,17 @@ public class Stage implements Serializable {
     public void removeFromStagingArea(String filename) {
         File toBeRemoved = join(CWD, filename);
         Commit currCommit = Branch.readRecentCommit(Head.getHeadState());
+        boolean staged = addition.containsKey(filename);
+        boolean saved = currCommit.commitMapping().containsKey(filename);
 
-        if (!addition.containsKey(filename) && !currCommit.commitMapping().containsKey(filename)) {
+        if (!staged && !saved) {
             exitWithError("No reason to remove the file.");
         }
 
-        if (addition.containsKey(filename)) {
+        if (staged) {
             addition.remove(filename);  // unstage the file from addition
-        } else {
+        }
+        if (saved) {
             removal.add(filename);  // stage for removal if it has not been added
             restrictedDelete(toBeRemoved);
         }
@@ -108,7 +111,7 @@ public class Stage implements Serializable {
     /**
      * Read the previous staging area from the saved stage file.
      */
-    protected static Stage readFromStage() {
+    public static Stage readFromStage() {
         return readObject(STAGE_FILE, Stage.class);
     }
 

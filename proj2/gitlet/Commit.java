@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.Serializable;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static gitlet.Repository.GITLET_DIR;
 import static gitlet.Utils.*;
@@ -21,6 +24,8 @@ import static gitlet.Utils.*;
 public class Commit implements Serializable {
     /** The logs directory for commits information. */
     public static final File COMMIT_DIR = join(GITLET_DIR, "logs");
+    /** The automatic message of the initial commit. */
+    public static final String INIT_COMMIT_MSG = "initial commit";
 
     /** The date and time of this Commit. */
     private final Date timestamp;
@@ -42,7 +47,7 @@ public class Commit implements Serializable {
      */
     public Commit() {
         this.timestamp = new Date(0);  // 00:00:00 UTC, Thursday, January 1st, 1970
-        this.message = "initial commit";
+        this.message = INIT_COMMIT_MSG;
         this.parent = this.secondParent = "";  // empty string represents no such parent
         this.fileMapping = new HashMap<>();
         this.hashValue = generateHashValue();
@@ -56,7 +61,7 @@ public class Commit implements Serializable {
     }
 
     /**
-     * TODO: Constructor for the merge command.
+     * Constructor for merging two branches where a commit can have two parents.
      * @param message the commit message as specified in the command line argument.
      * @param parent the reference to the parent commit.
      *               All commit must have a parent except for the initial commit.
@@ -68,8 +73,15 @@ public class Commit implements Serializable {
         this.parent = parent.hashValue();
         this.secondParent = (secondParent == null) ? "" : secondParent.hashValue();
         this.fileMapping = new HashMap<>(parent.commitMapping());
-        this.fileMapping.putAll(readStagingArea());
+        this.readStagingArea();
         this.hashValue = generateHashValue();
+    }
+
+    /**
+     * @return the datetime of this commit.
+     */
+    public Date timestamp() {
+        return this.timestamp;
     }
 
     /**
@@ -101,10 +113,23 @@ public class Commit implements Serializable {
     }
 
     /**
-     * Read from the current staging area, and then clear the stage file.
-     * @return the file mapping to be committed.
+     * @return the hash value of the parent commit.
      */
-    private Map<String, String> readStagingArea() {
+    public String parentCommit() {
+        return this.parent;
+    }
+
+    /**
+     * @return the hash value of the second parent commit.
+     */
+    public String secondParentCommit() {
+        return this.secondParent;
+    }
+
+    /**
+     * Read from the current staging area, and then clear the stage file.
+     */
+    private void readStagingArea() {
         Stage currStage = new Stage();
         Map<String, String> add = currStage.stageMap();
         Set<String> remove = currStage.removeFiles();
@@ -113,13 +138,12 @@ public class Commit implements Serializable {
         }
 
         // create a new map to store info in the staging area
-        Map<String, String> staged = new HashMap<>(add);
-        staged.keySet().removeAll(remove);
+        this.fileMapping.putAll(add);
+        this.fileMapping.keySet().removeAll(remove);
 
         // clear staging area after a copy has been made
         currStage.clearStagingArea();
         currStage.writeToStage();
-        return staged;
     }
 
     /**
@@ -153,10 +177,44 @@ public class Commit implements Serializable {
      * @return the Commit instance.
      */
     public static Commit readCommit(String commitID) {
+        if (commitID.length() < 40) {
+            commitID = findPrefix(commitID);
+        }
         File commitInfo = join(COMMIT_DIR, commitID);
         if (!commitInfo.exists()) {
             exitWithError("No commit with that id exists.");
         }
         return readObject(commitInfo, Commit.class);
+    }
+
+    /**
+     * Support abbreviated commit ID lookup.
+     * @param abbrev the shortened ID with fewer than 40 characters.
+     * @return the complete 40-character hexadecimal hash value. If there is no commit ID fits
+ *             the abbreviation, return an empty string.
+     */
+    public static String findPrefix(String abbrev) {
+        List<String> commitWithPrefix = readAllCommits().stream()
+                               .filter(c -> c.startsWith(abbrev)).collect(Collectors.toList());
+        return commitWithPrefix.isEmpty() ? "" : commitWithPrefix.get(0);
+    }
+
+    /**
+     * @return all plain files in the working directory but null pointer safe.
+     */
+    public static List<String> readAllCommits() {
+        List<String> allCommits = plainFilenamesIn(COMMIT_DIR);
+        return (allCommits == null) ? new ArrayList<>() : allCommits;
+    }
+
+    /**
+     * @return a formatted commit information.
+     */
+    @Override
+    public String toString() {
+        return "===\n"
+               + "commit " + this.hashValue() + "\n"
+               + "Date: " + this.commitTime() + "\n"
+               + this.commitMessage() + "\n";
     }
 }
