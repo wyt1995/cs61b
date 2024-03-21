@@ -64,6 +64,7 @@ public class Repository {
         Blob.OBJECT_DIR.mkdir();
         Commit.COMMIT_DIR.mkdir();
         Branch.BRANCH_DIR.mkdir();
+        Remote.REMOTE_DIR.mkdir();
 
         // make file for empty staging area
         Stage initialStage = new Stage();
