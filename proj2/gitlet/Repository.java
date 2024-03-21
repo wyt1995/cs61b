@@ -561,19 +561,17 @@ public class Repository {
             String mergingVersion = mergingFiles.get(file);
             String workingVersion = currentFiles.get(file);
 
-            // if the file was deleted in the given branch
             if (mergingVersion == null) {
+                // if the file was deleted in the given branch, consider its current version
                 if (earliest.equals(workingVersion)) {
                     restrictedDelete(file);
                     stagingArea.removeFromStagingArea(file);
                 } else if (workingVersion != null) {
                     conflictFiles.add(file);
                 }
-            }
-
-            // if the file is present in the given branch, only needs to consider the case when
-            // it was modified. Otherwise, keep the version in the current branch and do nothing.
-            else if (!earliest.equals(mergingVersion)) {
+            } else if (!earliest.equals(mergingVersion)) {
+                // if the file is present in the given branch, only needs to consider the case when
+                // it was modified; otherwise, keep the version in the current branch and do nothing
                 if (earliest.equals(workingVersion)) {
                     overwriteFromFile(file, mergingCommit);
                     stagingArea.addToStagingArea(file);
@@ -626,9 +624,13 @@ public class Repository {
 
             StringBuilder newContent = new StringBuilder();
             newContent.append("<<<<<<< HEAD\n");
-            newContent.append(Blob.readBlobAsString(currBlobId));
+            if (currBlobId != null) {
+                newContent.append(Blob.readBlobAsString(currBlobId));
+            }
             newContent.append("=======\n");
-            newContent.append(Blob.readBlobAsString(mergeBlobID));
+            if (mergeBlobID != null) {
+                newContent.append(Blob.readBlobAsString(mergeBlobID));
+            }
             newContent.append(">>>>>>>\n");
             writeContents(createFile(file), newContent.toString());
 
