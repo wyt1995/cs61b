@@ -112,8 +112,18 @@ public class Commit implements Serializable {
         return Collections.unmodifiableMap(fileMapping);
     }
 
+    /**
+     * @return the hash value of the parent commit.
+     */
     public String parentCommit() {
         return this.parent;
+    }
+
+    /**
+     * @return the hash value of the second parent commit.
+     */
+    public String secondParentCommit() {
+        return this.secondParent;
     }
 
     /**

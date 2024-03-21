@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -640,15 +642,47 @@ public class Repository {
 
     /**
      * Find the split point of two branches before merging them.
-     * The split point is a latest common ancestor of the current and given branch heads.
+     * The split point is the latest common ancestor of the current and given branch heads.
      * @return the commit ID of the split point.
      */
     private static String findSplitPoint(Branch b1, Branch b2) {
-        List<String> f1 = b1.getCommits();
-        List<String> f2 = b2.getCommits();
-        for (String commit : f1) {
-            if (f2.contains(commit)) {
-                return commit;
+        String c1 = b1.getRecentCommit();
+        String c2 = b2.getRecentCommit();
+        Set<String> commitHistory = new HashSet<>();
+        Queue<String> bfsqueue = new ArrayDeque<>();
+
+        // add all commits in c1 to the commitHistory set
+        bfsqueue.add(c1);
+        while (!bfsqueue.isEmpty()) {
+            String commitID = bfsqueue.remove();
+            Commit commit = Commit.readCommit(commitID);
+            String parentID = commit.parentCommit();
+            if (!parentID.isEmpty()) {
+                bfsqueue.add(parentID);
+                commitHistory.add(parentID);
+            }
+            String secondParent = commit.secondParentCommit();
+            if (!secondParent.isEmpty()) {
+                bfsqueue.add(secondParent);
+                commitHistory.add(secondParent);
+            }
+        }
+
+        // add commits in c2, search for the first common ancestor
+        bfsqueue.add(c2);
+        while (!bfsqueue.isEmpty()) {
+            String commitID = bfsqueue.remove();
+            Commit commit = Commit.readCommit(commitID);
+            if (commitHistory.contains(commitID)) {
+                return commitID;
+            }
+            String parentID = commit.parentCommit();
+            if (!parentID.isEmpty()) {
+                bfsqueue.add(parentID);
+            }
+            String secondParent = commit.secondParentCommit();
+            if (!secondParent.isEmpty()) {
+                bfsqueue.add(secondParent);
             }
         }
         return "";
