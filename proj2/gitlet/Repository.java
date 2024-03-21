@@ -549,7 +549,7 @@ public class Repository {
         Branch merging = Branch.readCurrentBranch(branchName);
         Commit currentCommit = Branch.readRecentCommit(current);
         Commit mergingCommit = Branch.readRecentCommit(merging);
-        String splitID = findSplitPoint(current, merging);
+        String splitID = findSplitPoint(currentCommit.hashValue(), mergingCommit.hashValue());
         checkSplitBeforeMerge(currentCommit, mergingCommit, splitID);
 
         Map<String, String> currentFiles = currentCommit.commitMapping();
@@ -645,13 +645,12 @@ public class Repository {
      * The split point is the latest common ancestor of the current and given branch heads.
      * @return the commit ID of the split point.
      */
-    private static String findSplitPoint(Branch b1, Branch b2) {
-        String c1 = b1.getRecentCommit();
-        String c2 = b2.getRecentCommit();
+    private static String findSplitPoint(String c1, String c2) {
         Set<String> commitHistory = new HashSet<>();
         Queue<String> bfsqueue = new ArrayDeque<>();
 
         // add all commits in c1 to the commitHistory set
+        commitHistory.add(c1);
         bfsqueue.add(c1);
         while (!bfsqueue.isEmpty()) {
             String commitID = bfsqueue.remove();
