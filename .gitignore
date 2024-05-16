@@ -60,6 +60,7 @@ node_modules/
 .ropeproject
 spec/
 temp/
+test_gitlet/
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 
 ### Java ###
