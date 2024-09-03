@@ -6,8 +6,8 @@
 !**/pom.xml
 !.fatweleminus
 !.gitignore
-!library-sp21
 !foods.csv
+library-sp21/
 *.class
 *.log
 *.ctxt
